@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `wrangler dev`. Never commit .dev.vars.
+# Clerk (AUTH_MODE=clerk): the secret key of your Clerk instance.
+CLERK_SECRET_KEY=sk_test_...
+# Local development without Clerk: `task dev` passes AUTH_MODE=test instead,
+# and requests then authenticate as `Authorization: Bearer test:<walker_id>`.

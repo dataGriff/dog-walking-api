@@ -1,0 +1,78 @@
+version: '3'
+
+vars:
+  SPECS_REPO: dataGriff/dog-walking-spec
+  SERVICES: clients walks
+
+tasks:
+  contracts:fetch:
+    desc: Fetch each pinned contract surface and its toolchain into read-only .contracts/<service>/
+    cmds:
+      - |
+        set -e
+        for service in {{.SERVICES}}; do
+          sha=$(awk -v s="$service" '$0 ~ "^version: " s "/v" {want=1; next} want && /^sha:/ {print $2; exit}' contracts.lock)
+          [ -n "$sha" ] || { echo "contracts.lock has no sha for $service"; exit 1; }
+          dir=.contracts/$service
+          chmod -R u+w "$dir" 2>/dev/null || true
+          rm -rf "$dir" && git init -q "$dir"
+          git -C "$dir" remote add origin https://github.com/{{.SPECS_REPO}}
+          git -C "$dir" sparse-checkout set "specs/$service" mocks cli
+          git -C "$dir" fetch -q --depth 1 origin "$sha"
+          git -C "$dir" checkout -q FETCH_HEAD
+          chmod -R a-w "$dir/specs"
+          echo "fetched $service @ $sha into $dir"
+        done
+
+  dev:
+    desc: Run the worker locally with the test auth mode and fixtures (see README)
+    cmds:
+      - npm run db:migrate:local
+      - npx wrangler dev --var AUTH_MODE:test
+
+  features:
+    desc: Run the pinned feature files, strict, against a worker this task starts
+    cmds:
+      - node scripts/with-worker.mjs -- npx cucumber-js
+
+  features:null:
+    desc: Falsifiability gate - the same suite against the spec toolchain's null service must pass zero scenarios
+    cmds:
+      - |
+        set -e
+        for service in {{.SERVICES}}; do
+          # Run from the pinned toolchain's directory with absolute paths: cucumber
+          # resolves everything, the config included, against its cwd.
+          BASE_URL=http://localhost:9099 NODE_OPTIONS="--import tsx" task -d .contracts/$service null:run \
+            RESULTS={{.ROOT_DIR}}/.null-results-$service.json -- \
+            {{.ROOT_DIR}}/node_modules/.bin/cucumber-js {{.ROOT_DIR}}/.contracts/$service/specs/$service/features \
+            --import '{{.ROOT_DIR}}/steps/**/*.ts' --strict --format json:{{.ROOT_DIR}}/.null-results-$service.json
+        done
+
+  contracts:test:
+    desc: Microcks contract tests against a running worker (REST_ENDPOINT as the Microcks containers reach it)
+    cmds:
+      - |
+        set -e
+        for service in {{.SERVICES}}; do
+          task -d .contracts/$service contract:test SERVICE=$service REST_ENDPOINT={{.REST_ENDPOINT}} {{if .ASYNC_ENDPOINT}}ASYNC_ENDPOINT={{.ASYNC_ENDPOINT}}{{end}}
+        done
+
+  schemathesis:
+    desc: Schema fuzz of the OpenAPI surfaces against a running worker at BASE_URL
+    cmds:
+      - |
+        set -e
+        for service in {{.SERVICES}}; do
+          uvx schemathesis run .contracts/$service/specs/$service/openapi/*.yaml --url "${BASE_URL:-http://localhost:8787}" \
+            -H "Authorization: Bearer test:walker-fuzz" --checks not_a_server_error,status_code_conformance \
+            --phases fuzzing --max-examples 25 --request-timeout 10
+        done
+
+  contracts:verify:
+    desc: The definition of done - strict features, the null-service control, then (with a worker up at BASE_URL and Docker) contract tests and schema fuzz
+    cmds:
+      - task: features
+      - task: features:null
+      - task: schemathesis
+      - task: contracts:test

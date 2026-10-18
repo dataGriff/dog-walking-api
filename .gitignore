@@ -1,0 +1,10 @@
+node_modules/
+.wrangler/
+.contracts/
+.null-results*.json
+.dev.vars
+dist/
+*.log
+.task/
+.schemathesis/
+worker.log

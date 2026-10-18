@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      - run: npm ci
+      - name: Generated files are current
+        run: |
+          npx wrangler types
+          npx drizzle-kit generate
+          git diff --exit-code -- worker-configuration.d.ts migrations
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - name: Fetch the pinned contract surfaces
+        run: task contracts:fetch
+      - name: Strict feature suite against a local worker
+        run: task features
+      - name: Falsifiability - zero scenarios may pass against the null service
+        run: task features:null
+      - name: Schema fuzz against a local worker
+        run: node scripts/with-worker.mjs -- task schemathesis
+      # Microcks contract tests: the spec toolchain's docker-compose stack replays every
+      # REST example against the worker and validates the responses against the OpenAPI.
+      # TEST_DEFAULT_WALKER is the test harness switch that lets an unauthenticated
+      # replay act as the fixtures' walker (AUTH_MODE=test only).
+      - name: Contract tests (Microcks)
+        run: |
+          set -e
+          rm -rf .wrangler/state
+          npx wrangler d1 migrations apply dog-walking --local
+          (npx wrangler dev --port 8787 --ip 0.0.0.0 --var AUTH_MODE:test --var TEST_DEFAULT_WALKER:user_2walkeranna > worker.log 2>&1 &)
+          for i in $(seq 1 60); do curl -fsS localhost:8787/healthz > /dev/null 2>&1 && break; sleep 1; done
+          curl -fsS -X POST localhost:8787/__test/reset > /dev/null
+          task -d .contracts/walks mocks:up
+          gw=$(docker network inspect mocks_default --format '{{(index .IPAM.Config 0).Gateway}}')
+          task contracts:test REST_ENDPOINT=http://$gw:8787
+      - name: Stop the mock stack
+        if: always()
+        run: task -d .contracts/walks mocks:down || true
