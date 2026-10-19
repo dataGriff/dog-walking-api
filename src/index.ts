@@ -56,6 +56,10 @@ export default {
 
   /** Cron: drain anything the request-time relay could not publish. */
   async scheduled(_event: ScheduledController, env: AppEnv["Bindings"], ctx: ExecutionContext) {
-    ctx.waitUntil(relayOutbox(database(env.DB), env.EVENTS, env.AUTH_MODE === "test"));
+    ctx.waitUntil(
+      relayOutbox(database(env.DB), env.EVENTS, env.AUTH_MODE === "test").catch((err) =>
+        console.warn("outbox relay deferred:", err instanceof Error ? err.message : err),
+      ),
+    );
   },
 } satisfies ExportedHandler<AppEnv["Bindings"]>;

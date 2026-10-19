@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { AppEnv } from "../env";
 import { database } from "../db";
 import { clients, dogs } from "../db/schema";
-import { nowIso, present, problem } from "../problem";
+import { nowIso, problem, scoped } from "../problem";
 import { parseBody } from "../validate";
 
 const name = z.string().trim().min(1, "name must not be blank");
@@ -34,7 +34,7 @@ export const dogRoutes = new Hono<AppEnv>()
       .where(and(...conditions))
       .orderBy(desc(dogs.created_at), desc(dogs.dog_id))
       .all();
-    return c.json({ dogs: rows.map(({ walker_id: _w, ...row }) => present(row)) });
+    return c.json({ dogs: rows.map(scoped) });
   })
   .post("/", async (c) => {
     const body = await parseBody(c, CreateDog, "invalid_dog");
@@ -55,8 +55,7 @@ export const dogRoutes = new Hono<AppEnv>()
       created_at: nowIso(),
     };
     await db.insert(dogs).values(row).run();
-    const { walker_id: _w, ...out } = row;
-    return c.json(present(out), 201);
+    return c.json(scoped(row), 201);
   })
   .get("/:dog_id", async (c) => {
     const db = database(c.env.DB);
@@ -66,22 +65,22 @@ export const dogRoutes = new Hono<AppEnv>()
       .where(and(eq(dogs.walker_id, c.get("walkerId")), eq(dogs.dog_id, c.req.param("dog_id"))))
       .get();
     if (!row) return problem(c, 404, "dog_not_found", `No dog ${c.req.param("dog_id")}`);
-    const { walker_id: _w, ...out } = row;
-    return c.json(present(out));
+    return c.json(scoped(row));
   })
   .patch("/:dog_id", async (c) => {
     const body = await parseBody(c, UpdateDog, "invalid_dog");
     if (!body.ok) return body.response;
     const db = database(c.env.DB);
     const where = and(eq(dogs.walker_id, c.get("walkerId")), eq(dogs.dog_id, c.req.param("dog_id")));
-    const existing = await db.select({ dog_id: dogs.dog_id }).from(dogs).where(where).get();
-    if (!existing) return problem(c, 404, "dog_not_found", `No dog ${c.req.param("dog_id")}`);
-    if (Object.keys(body.value).length > 0) {
-      await db.update(dogs).set(body.value).where(where).run();
-    }
-    const row = (await db.select().from(dogs).where(where).get())!;
-    const { walker_id: _w, ...out } = row;
-    return c.json(present(out));
+    // An empty patch still has to answer with the row, so touch a column it already has.
+    const row = await db
+      .update(dogs)
+      .set(Object.keys(body.value).length > 0 ? body.value : { dog_id: c.req.param("dog_id") })
+      .where(where)
+      .returning()
+      .get();
+    if (!row) return problem(c, 404, "dog_not_found", `No dog ${c.req.param("dog_id")}`);
+    return c.json(scoped(row));
   })
   .delete("/:dog_id", async (c) => {
     const db = database(c.env.DB);

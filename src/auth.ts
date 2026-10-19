@@ -17,7 +17,11 @@ export async function resolveWalker(
   }
   if (!env.CLERK_SECRET_KEY) return null;
   try {
-    const payload = await verifyToken(token, { secretKey: env.CLERK_SECRET_KEY });
+    const authorizedParties = env.CLERK_AUTHORIZED_PARTIES?.split(",").map((s) => s.trim()).filter(Boolean);
+    const payload = await verifyToken(token, {
+      secretKey: env.CLERK_SECRET_KEY,
+      ...(authorizedParties?.length ? { authorizedParties } : {}),
+    });
     return payload.sub ?? null;
   } catch {
     return null;

@@ -9,7 +9,7 @@ how:
 | --- | --- |
 | HTTP | [Hono](https://hono.dev) on Workers, one route module per contract tag |
 | Storage | D1 (SQLite) through Drizzle; migrations under `migrations/` |
-| Identity | Clerk session JWTs (`AUTH_MODE=clerk`), the `sub` claim is the walker |
+| Identity | Clerk session JWTs (`AUTH_MODE=clerk`) restricted to `CLERK_AUTHORIZED_PARTIES`; the `sub` claim is the walker |
 | Events | Transactional outbox in D1, relayed to a Cloudflare Queue; CloudEvents 1.0 envelopes |
 | Walk history | The queue consumer (same worker) lands every event in the ODCS tables, deduped on `event_id` |
 | Contract pin | `contracts.lock` → `task contracts:fetch` → read-only `.contracts/<service>/` |
@@ -85,6 +85,7 @@ npx wrangler d1 create dog-walking            # paste the id into wrangler.jsonc
 npx wrangler queues create dog-walking-events
 npx wrangler queues create dog-walking-events-dlq
 npx wrangler secret put CLERK_SECRET_KEY
+npx wrangler secret put CLERK_AUTHORIZED_PARTIES   # the web app's origin(s), comma-separated
 ```
 
 Then every push to `main` runs `.github/workflows/deploy.yml`: migrations

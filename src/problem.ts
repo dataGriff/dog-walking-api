@@ -25,3 +25,10 @@ export function present<T extends Record<string, unknown>>(row: T): Partial<T> {
 export function nowIso(): string {
   return new Date().toISOString();
 }
+
+/** A stored row as the API presents it: without the walker scoping column,
+ * and without null optionals. */
+export function scoped<T extends { walker_id: string }>(row: T): Partial<Omit<T, "walker_id">> {
+  const { walker_id: _w, ...rest } = row;
+  return present(rest);
+}

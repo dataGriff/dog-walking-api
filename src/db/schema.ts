@@ -50,6 +50,11 @@ export const walks = sqliteTable(
     completed_at: text(),
     cancelled_at: text(),
     cancellation_reason: text(),
+    /** The envelope id of the event that last changed the walk. A lifecycle
+     * transition sets it in the same UPDATE that checks the status, and the
+     * outbox row is inserted only where it stuck, so two concurrent closes
+     * yield one event. */
+    last_event_id: text(),
     created_at: text().notNull(),
   },
   (t) => [index("walks_walker_scheduled").on(t.walker_id, t.scheduled_at)],

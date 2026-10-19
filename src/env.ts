@@ -8,6 +8,10 @@ export type Bindings = Omit<Env, "AUTH_MODE"> & {
   AUTH_MODE: "clerk" | "test";
   /** Clerk secret key - AUTH_MODE=clerk only. */
   CLERK_SECRET_KEY?: string;
+  /** Comma-separated origins whose session tokens are accepted (the `azp`
+   * claim), e.g. the web app's URL. Without it any frontend of the same
+   * Clerk instance is trusted. */
+  CLERK_AUTHORIZED_PARTIES?: string;
   /** AUTH_MODE=test only: the walker an unauthenticated request acts as, so
    * a contract-test runner that cannot send headers can still exercise the
    * fixtures. Unset, a missing token is a 401 exactly as in production. */

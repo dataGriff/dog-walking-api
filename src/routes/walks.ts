@@ -32,7 +32,7 @@ const CancelWalk = z.strictObject({
 type WalkRow = typeof walks.$inferSelect;
 
 function toApi(row: WalkRow) {
-  const { walker_id: _w, ...rest } = row;
+  const { walker_id: _w, last_event_id: _e, ...rest } = row;
   return present({ ...rest, dog_ids: JSON.parse(row.dog_ids) as string[] });
 }
 
@@ -43,12 +43,17 @@ function utc(iso: string): string {
 
 async function ownedDogs(db: Database, walkerId: string, ids: string[]): Promise<string[] | null> {
   const unique = [...new Set(ids)];
-  const found = await db
-    .select({ dog_id: dogs.dog_id })
-    .from(dogs)
-    .where(and(eq(dogs.walker_id, walkerId), inArray(dogs.dog_id, unique)))
-    .all();
-  return found.length === unique.length ? unique : null;
+  let found = 0;
+  // Chunked: D1 binds at most 100 parameters per statement.
+  for (let i = 0; i < unique.length; i += 50) {
+    const rows = await db
+      .select({ dog_id: dogs.dog_id })
+      .from(dogs)
+      .where(and(eq(dogs.walker_id, walkerId), inArray(dogs.dog_id, unique.slice(i, i + 50))))
+      .all();
+    found += rows.length;
+  }
+  return found === unique.length ? unique : null;
 }
 
 async function loadWalk(db: Database, walkerId: string, walkId: string) {
@@ -63,20 +68,53 @@ function notFound(c: Context<AppEnv>) {
   return problem(c, 404, "walk_not_found", `No walk ${c.req.param("walk_id")}`);
 }
 
-/** Apply a state change and its event in one D1 batch, then relay. */
-async function commitWithEvent(
-  c: Context<AppEnv>,
-  db: Database,
-  write: Parameters<Database["batch"]>[0][number],
-  channel: string,
-  event: ReturnType<typeof envelope>,
-) {
-  await db.batch([write, db.insert(outbox).values(outboxRow(channel, event))]);
+function relayLater(c: Context<AppEnv>, db: Database) {
   c.executionCtx.waitUntil(
     relayOutbox(db, c.env.EVENTS, c.env.AUTH_MODE === "test").catch((err) =>
       console.warn("outbox relay deferred:", err instanceof Error ? err.message : err),
     ),
   );
+}
+
+/** Close or progress a walk and commit its event in one D1 batch.
+ *
+ * The UPDATE carries the status the caller saw, so of two concurrent
+ * transitions only one changes the row, and the outbox INSERT ... SELECT
+ * is keyed on last_event_id so only that one commits an event. Returns the
+ * walk as it now stands, or null when another request won the race. */
+async function transition(
+  c: Context<AppEnv>,
+  db: Database,
+  row: WalkRow,
+  fromStatuses: string[],
+  changes: Partial<WalkRow>,
+  channel: string,
+  event: ReturnType<typeof envelope>,
+): Promise<WalkRow | null> {
+  const ob = outboxRow(channel, event);
+  const update = db
+    .update(walks)
+    .set({ ...changes, last_event_id: event.id })
+    .where(and(eq(walks.walk_id, row.walk_id), inArray(walks.status, fromStatuses)))
+    .toSQL();
+  // Through the D1 binding: drizzle's batch cannot prepare a raw INSERT ... SELECT.
+  const d1 = c.env.DB;
+  await d1.batch([
+    d1.prepare(update.sql).bind(...update.params),
+    d1
+      .prepare(
+        "INSERT INTO outbox (event_id, channel, subject, envelope, created_at) " +
+          "SELECT ?1, ?2, ?3, ?4, ?5 FROM walks WHERE walk_id = ?6 AND last_event_id = ?1",
+      )
+      .bind(ob.event_id, ob.channel, ob.subject, ob.envelope, ob.created_at, row.walk_id),
+  ]);
+  relayLater(c, db);
+  const after = await loadWalk(db, row.walker_id, row.walk_id);
+  return after && after.last_event_id === event.id ? after : null;
+}
+
+function alreadyClosed(c: Context<AppEnv>, status: string | undefined) {
+  return problem(c, 409, "walk_already_closed", `A ${status ?? "closed"} walk cannot be changed.`);
 }
 
 export const walkRoutes = new Hono<AppEnv>()
@@ -128,6 +166,7 @@ export const walkRoutes = new Hono<AppEnv>()
       completed_at: null,
       cancelled_at: null,
       cancellation_reason: null,
+      last_event_id: null,
       created_at: now,
     };
     const event = envelope(
@@ -141,7 +180,8 @@ export const walkRoutes = new Hono<AppEnv>()
       },
       now,
     );
-    await commitWithEvent(c, db, db.insert(walks).values(row), CHANNELS.scheduled, event);
+    await db.batch([db.insert(walks).values(row), db.insert(outbox).values(outboxRow(CHANNELS.scheduled, event))]);
+    relayLater(c, db);
     return c.json(toApi(row), 201);
   })
   .get("/:walk_id", async (c) => {
@@ -181,8 +221,14 @@ export const walkRoutes = new Hono<AppEnv>()
       return problem(c, 409, "walk_not_scheduled", `A ${row.status} walk cannot be started.`);
     }
     const changes = { status: "in_progress", started_at: nowIso() };
-    await db.update(walks).set(changes).where(eq(walks.walk_id, row.walk_id)).run();
-    return c.json(toApi({ ...row, ...changes }));
+    const result = await db
+      .update(walks)
+      .set(changes)
+      .where(and(eq(walks.walk_id, row.walk_id), eq(walks.status, "scheduled")))
+      .returning()
+      .get();
+    if (!result) return problem(c, 409, "walk_not_scheduled", "The walk is no longer scheduled.");
+    return c.json(toApi(result));
   })
   .post("/:walk_id/complete", async (c) => {
     const body = await parseBody(c, CompleteWalk, "invalid_walk", false);
@@ -196,7 +242,6 @@ export const walkRoutes = new Hono<AppEnv>()
     const now = nowIso();
     const changes: Partial<WalkRow> = { status: "completed", completed_at: now };
     if (body.value.notes !== undefined) changes.notes = body.value.notes;
-    const next = { ...row, ...changes };
     const event = envelope(
       TYPES.completed,
       {
@@ -210,14 +255,9 @@ export const walkRoutes = new Hono<AppEnv>()
       },
       now,
     );
-    await commitWithEvent(
-      c,
-      db,
-      db.update(walks).set(changes).where(eq(walks.walk_id, row.walk_id)),
-      CHANNELS.completed,
-      event,
-    );
-    return c.json(toApi(next));
+    const after = await transition(c, db, row, ["scheduled", "in_progress"], changes, CHANNELS.completed, event);
+    if (!after) return alreadyClosed(c, (await loadWalk(db, row.walker_id, row.walk_id))?.status);
+    return c.json(toApi(after));
   })
   .post("/:walk_id/cancel", async (c) => {
     const body = await parseBody(c, CancelWalk, "invalid_walk");
@@ -245,12 +285,7 @@ export const walkRoutes = new Hono<AppEnv>()
       },
       now,
     );
-    await commitWithEvent(
-      c,
-      db,
-      db.update(walks).set(changes).where(eq(walks.walk_id, row.walk_id)),
-      CHANNELS.cancelled,
-      event,
-    );
-    return c.json(toApi({ ...row, ...changes }));
+    const after = await transition(c, db, row, ["scheduled", "in_progress"], changes, CHANNELS.cancelled, event);
+    if (!after) return alreadyClosed(c, (await loadWalk(db, row.walker_id, row.walk_id))?.status);
+    return c.json(toApi(after));
   });
