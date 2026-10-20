@@ -48,4 +48,4 @@ jobs:
           task contracts:test REST_ENDPOINT=http://$gw:8787
       - name: Stop the mock stack
         if: always()
-        run: task -d .contracts/walks mocks:down || true
+        run: '[ -d .contracts/walks ] && task -d .contracts/walks mocks:down || true'
