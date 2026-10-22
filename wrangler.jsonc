@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "dog-walking-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "vars": {
+    // "clerk" verifies Clerk session JWTs with CLERK_SECRET_KEY (a secret).
+    // "test" accepts `Bearer test:<walker_id>` and mounts /__test - never in production.
+    "AUTH_MODE": "clerk"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dog-walking",
+      // Replace with the id `wrangler d1 create dog-walking` prints.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "queues": {
+    "producers": [{ "binding": "EVENTS", "queue": "dog-walking-events" }],
+    "consumers": [
+      {
+        "queue": "dog-walking-events",
+        "max_batch_size": 25,
+        "max_batch_timeout": 2,
+        "max_retries": 10,
+        "dead_letter_queue": "dog-walking-events-dlq"
+      }
+    ]
+  },
+  "triggers": {
+    // Outbox recovery: anything the request-time relay could not publish.
+    "crons": ["*/5 * * * *"]
+  }
+}

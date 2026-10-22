@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Contract pin updates for the clients and walks services this repo implements. One-time setup: install the Renovate app, enable 'Allow auto-merge' on the repo, and protect main behind the contract-converge check.",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^contracts\\.lock$/"],
+      "matchStrings": [
+        "version: clients\\/v(?<currentValue>[0-9.]+)\\s+sha: (?<currentDigest>[a-f0-9]{40})"
+      ],
+      "depNameTemplate": "dog-walking-spec/clients",
+      "packageNameTemplate": "https://github.com/dataGriff/dog-walking-spec",
+      "datasourceTemplate": "git-tags",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^clients/v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^contracts\\.lock$/"],
+      "matchStrings": [
+        "version: walks\\/v(?<currentValue>[0-9.]+)\\s+sha: (?<currentDigest>[a-f0-9]{40})"
+      ],
+      "depNameTemplate": "dog-walking-spec/walks",
+      "packageNameTemplate": "https://github.com/dataGriff/dog-walking-spec",
+      "datasourceTemplate": "git-tags",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^walks/v(?<version>.+)$"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["dog-walking-spec/clients", "dog-walking-spec/walks"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "platformAutomerge": true
+    },
+    {
+      "matchDepNames": ["dog-walking-spec/clients", "dog-walking-spec/walks"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["contract-major"]
+    }
+  ]
+}
