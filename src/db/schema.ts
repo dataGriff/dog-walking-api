@@ -72,6 +72,9 @@ export const outbox = sqliteTable(
     created_at: text().notNull(),
     published_at: text(),
     attempts: integer().notNull().default(0),
+    /** Lease: a relay that claims a row owns it until this instant, so
+     * concurrent relays publish disjoint rows. */
+    claimed_until: text(),
   },
   (t) => [index("outbox_unpublished").on(t.published_at, t.created_at)],
 );

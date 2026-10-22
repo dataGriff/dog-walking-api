@@ -35,3 +35,18 @@ export function fieldList(text: string): string[] {
     .filter((s) => s.length > 0)
     .map((s) => s.split(/\s+/)[0]!);
 }
+
+Then(/^the (client|dog|walk) carries no (\w+)$/, function (this: ApiWorld, _what: string, field: string) {
+  assert.ok(this.last.body, "the response has a body");
+  assert.equal(this.last.body![field], undefined, `${field} is absent, got ${JSON.stringify(this.last.body)}`);
+});
+
+Given("the walker has an open walk for {string}", async function (this: ApiWorld, dog: string) {
+  await this.scheduleWalk([dog]);
+});
+
+Given("the walker has a cancelled walk for {string}", async function (this: ApiWorld, dog: string) {
+  const walk = await this.scheduleWalk([dog]);
+  await this.call("POST", `/walks/${walk.walk_id}/cancel`, { reason: "client_request" });
+  this.expectStatus(200, "cancelling the walk");
+});

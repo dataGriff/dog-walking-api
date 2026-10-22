@@ -91,11 +91,26 @@ Then("the dog's notes are the new value", function (this: ApiWorld) {
   assert.equal(this.last.body!.notes, this.updated.notes);
 });
 
-Then("the dog's name, breed, date_of_birth and client_id are unchanged", function (this: ApiWorld) {
-  for (const f of ["name", "breed", "date_of_birth", "client_id"]) {
+Then(/^the dog's (.+) are unchanged$/, function (this: ApiWorld, fields: string) {
+  for (const f of fieldList(fields)) {
+    assert.ok(this.before![f] !== undefined, `the dog had a ${f} to keep`);
     assert.equal(this.last.body![f], this.before![f], `dog ${f}`);
   }
 });
+
+When("the dog's date_of_birth is cleared with an empty string via updateDog", async function (this: ApiWorld) {
+  this.before = this.currentDog;
+  await this.call("PATCH", `/dogs/${this.currentDog!.dog_id}`, { date_of_birth: "" });
+});
+
+When(
+  "the walker adds a dog for that client_id born on the date it already is in the furthest-ahead time zone via createDog",
+  async function (this: ApiWorld) {
+    // en-CA formats as YYYY-MM-DD; Pacific/Kiritimati is UTC+14.
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Pacific/Kiritimati" }).format(new Date());
+    await this.call("POST", "/dogs", { client_id: this.currentClient!.client_id, name: "Newborn", date_of_birth: today });
+  },
+);
 
 function dogNames(world: ApiWorld): string[] {
   const list: Record<string, unknown>[] = world.last.body?.dogs;

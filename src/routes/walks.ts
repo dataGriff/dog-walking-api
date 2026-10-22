@@ -1,5 +1,5 @@
 import { Hono, type Context } from "hono";
-import { and, asc, eq, gte, inArray, lt } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lt } from "drizzle-orm";
 import { z } from "zod";
 import type { AppEnv } from "../env";
 import { database, type Database } from "../db";
@@ -76,17 +76,17 @@ function relayLater(c: Context<AppEnv>, db: Database) {
   );
 }
 
-/** Close or progress a walk and commit its event in one D1 batch.
+/** Apply a lifecycle change and commit its event in one D1 batch.
  *
- * The UPDATE carries the status the caller saw, so of two concurrent
- * transitions only one changes the row, and the outbox INSERT ... SELECT
- * is keyed on last_event_id so only that one commits an event. Returns the
- * walk as it now stands, or null when another request won the race. */
+ * The UPDATE is a compare-and-swap on everything the event reports about
+ * the walk as it was read, so the event can never describe a stale walk,
+ * and the outbox INSERT ... SELECT is keyed on last_event_id so only the
+ * change that stuck commits an event. Returns the walk as it now stands,
+ * or null when the walk changed since it was read. */
 async function transition(
   c: Context<AppEnv>,
   db: Database,
   row: WalkRow,
-  fromStatuses: string[],
   changes: Partial<WalkRow>,
   channel: string,
   event: ReturnType<typeof envelope>,
@@ -95,7 +95,16 @@ async function transition(
   const update = db
     .update(walks)
     .set({ ...changes, last_event_id: event.id })
-    .where(and(eq(walks.walk_id, row.walk_id), inArray(walks.status, fromStatuses)))
+    .where(
+      and(
+        eq(walks.walk_id, row.walk_id),
+        eq(walks.status, row.status),
+        eq(walks.scheduled_at, row.scheduled_at),
+        eq(walks.duration_minutes, row.duration_minutes),
+        eq(walks.dog_ids, row.dog_ids),
+        row.started_at === null ? isNull(walks.started_at) : eq(walks.started_at, row.started_at),
+      ),
+    )
     .toSQL();
   // Through the D1 binding: drizzle's batch cannot prepare a raw INSERT ... SELECT.
   const d1 = c.env.DB;
@@ -115,6 +124,29 @@ async function transition(
 
 function alreadyClosed(c: Context<AppEnv>, status: string | undefined) {
   return problem(c, 409, "walk_already_closed", `A ${status ?? "closed"} walk cannot be changed.`);
+}
+
+/** Complete or cancel a walk. The event is built from the walk as read; if
+ * it changed before the write (a start, a reschedule), re-read and rebuild
+ * so the event matches the walk it closes. */
+async function closeWalk(
+  c: Context<AppEnv>,
+  build: (row: WalkRow, now: string) => {
+    changes: Partial<WalkRow>;
+    channel: string;
+    event: ReturnType<typeof envelope>;
+  },
+) {
+  const db = database(c.env.DB);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const row = await loadWalk(db, c.get("walkerId"), c.req.param("walk_id") ?? "");
+    if (!row) return notFound(c);
+    if (row.status === "completed" || row.status === "cancelled") return alreadyClosed(c, row.status);
+    const { changes, channel, event } = build(row, nowIso());
+    const after = await transition(c, db, row, changes, channel, event);
+    if (after) return c.json(toApi(after));
+  }
+  return problem(c, 409, "walk_changed", "The walk kept changing while it was being closed; try again.");
 }
 
 export const walkRoutes = new Hono<AppEnv>()
@@ -202,16 +234,24 @@ export const walkRoutes = new Hono<AppEnv>()
     const changes: Partial<WalkRow> = {};
     if (body.value.scheduled_at !== undefined) changes.scheduled_at = utc(body.value.scheduled_at);
     if (body.value.duration_minutes !== undefined) changes.duration_minutes = body.value.duration_minutes;
-    if (body.value.notes !== undefined) changes.notes = body.value.notes;
+    if (body.value.notes !== undefined) changes.notes = body.value.notes === "" ? null : body.value.notes;
     if (body.value.dog_ids !== undefined) {
       const owned = await ownedDogs(db, walkerId, body.value.dog_ids);
       if (!owned) return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
       changes.dog_ids = JSON.stringify(owned);
     }
-    if (Object.keys(changes).length > 0) {
-      await db.update(walks).set(changes).where(eq(walks.walk_id, row.walk_id)).run();
+    // Guarded on the status, so a walk started or closed since it was read is not amended.
+    const updated = await db
+      .update(walks)
+      .set(Object.keys(changes).length > 0 ? changes : { walk_id: row.walk_id })
+      .where(and(eq(walks.walk_id, row.walk_id), eq(walks.status, "scheduled")))
+      .returning()
+      .get();
+    if (!updated) {
+      const now = await loadWalk(db, walkerId, row.walk_id);
+      return problem(c, 409, "walk_not_scheduled", `A ${now?.status ?? "closed"} walk cannot be amended.`);
     }
-    return c.json(toApi({ ...row, ...changes }));
+    return c.json(toApi(updated));
   })
   .post("/:walk_id/start", async (c) => {
     const db = database(c.env.DB);
@@ -233,59 +273,44 @@ export const walkRoutes = new Hono<AppEnv>()
   .post("/:walk_id/complete", async (c) => {
     const body = await parseBody(c, CompleteWalk, "invalid_walk", false);
     if (!body.ok) return body.response;
-    const db = database(c.env.DB);
-    const row = await loadWalk(db, c.get("walkerId"), c.req.param("walk_id"));
-    if (!row) return notFound(c);
-    if (row.status === "completed" || row.status === "cancelled") {
-      return problem(c, 409, "walk_already_closed", `A ${row.status} walk cannot be completed.`);
-    }
-    const now = nowIso();
-    const changes: Partial<WalkRow> = { status: "completed", completed_at: now };
-    if (body.value.notes !== undefined) changes.notes = body.value.notes;
-    const event = envelope(
-      TYPES.completed,
-      {
-        walk_id: row.walk_id,
-        walker_id: row.walker_id,
-        scheduled_at: row.scheduled_at,
-        ...(row.started_at ? { started_at: row.started_at } : {}),
+    return closeWalk(c, (row, now) => ({
+      changes: {
+        status: "completed",
         completed_at: now,
-        duration_minutes: row.duration_minutes,
-        dog_ids: JSON.parse(row.dog_ids) as string[],
+        ...(body.value.notes !== undefined ? { notes: body.value.notes } : {}),
       },
-      now,
-    );
-    const after = await transition(c, db, row, ["scheduled", "in_progress"], changes, CHANNELS.completed, event);
-    if (!after) return alreadyClosed(c, (await loadWalk(db, row.walker_id, row.walk_id))?.status);
-    return c.json(toApi(after));
+      channel: CHANNELS.completed,
+      event: envelope(
+        TYPES.completed,
+        {
+          walk_id: row.walk_id,
+          walker_id: row.walker_id,
+          scheduled_at: row.scheduled_at,
+          ...(row.started_at ? { started_at: row.started_at } : {}),
+          completed_at: now,
+          duration_minutes: row.duration_minutes,
+          dog_ids: JSON.parse(row.dog_ids) as string[],
+        },
+        now,
+      ),
+    }));
   })
   .post("/:walk_id/cancel", async (c) => {
     const body = await parseBody(c, CancelWalk, "invalid_walk");
     if (!body.ok) return body.response;
-    const db = database(c.env.DB);
-    const row = await loadWalk(db, c.get("walkerId"), c.req.param("walk_id"));
-    if (!row) return notFound(c);
-    if (row.status === "completed" || row.status === "cancelled") {
-      return problem(c, 409, "walk_already_closed", `A ${row.status} walk cannot be cancelled.`);
-    }
-    const now = nowIso();
-    const changes: Partial<WalkRow> = {
-      status: "cancelled",
-      cancelled_at: now,
-      cancellation_reason: body.value.reason,
-    };
-    const event = envelope(
-      TYPES.cancelled,
-      {
-        walk_id: row.walk_id,
-        walker_id: row.walker_id,
-        scheduled_at: row.scheduled_at,
-        cancelled_at: now,
-        reason: body.value.reason,
-      },
-      now,
-    );
-    const after = await transition(c, db, row, ["scheduled", "in_progress"], changes, CHANNELS.cancelled, event);
-    if (!after) return alreadyClosed(c, (await loadWalk(db, row.walker_id, row.walk_id))?.status);
-    return c.json(toApi(after));
+    return closeWalk(c, (row, now) => ({
+      changes: { status: "cancelled", cancelled_at: now, cancellation_reason: body.value.reason },
+      channel: CHANNELS.cancelled,
+      event: envelope(
+        TYPES.cancelled,
+        {
+          walk_id: row.walk_id,
+          walker_id: row.walker_id,
+          scheduled_at: row.scheduled_at,
+          cancelled_at: now,
+          reason: body.value.reason,
+        },
+        now,
+      ),
+    }));
   });

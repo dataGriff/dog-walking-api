@@ -3,8 +3,6 @@ import assert from "node:assert/strict";
 import type { ApiWorld } from "./world.ts";
 import { carries, fieldList } from "./common.ts";
 
-const CLIENT_FIELDS = ["client_id", "name", "email", "phone", "address", "notes", "created_at"];
-
 Given("the walker has a client {string}", async function (this: ApiWorld, name: string) {
   await this.createClient(name);
 });
@@ -101,11 +99,16 @@ Then("the client's phone is the new value", function (this: ApiWorld) {
   assert.equal(this.last.body!.phone, this.updated.phone);
 });
 
-Then("the client's name, email, address and notes are unchanged", function (this: ApiWorld) {
-  for (const f of ["name", "email", "address", "notes"]) {
+Then(/^the client's (.+) are unchanged$/, function (this: ApiWorld, fields: string) {
+  for (const f of fieldList(fields)) {
+    assert.ok(this.before![f] !== undefined, `the client had a ${f} to keep`);
     assert.equal(this.last.body![f], this.before![f], `client ${f}`);
   }
-  carries(this.last.body, CLIENT_FIELDS, "the updated client");
+});
+
+When("the client's email is cleared with an empty string via updateClient", async function (this: ApiWorld) {
+  this.before = this.currentClient;
+  await this.call("PATCH", `/clients/${this.currentClient!.client_id}`, { email: "" });
 });
 
 Then("the clients list carries {string} before {string}", function (this: ApiWorld, first: string, second: string) {

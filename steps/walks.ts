@@ -195,3 +195,9 @@ When(
     await this.call("GET", `/walks?${query}`);
   },
 );
+
+When("the walk's notes are cleared with an empty string via updateWalk", async function (this: ApiWorld) {
+  this.before = this.currentWalk;
+  assert.ok(this.currentWalk!.notes, "the walk had notes to clear");
+  await this.call("PATCH", `/walks/${this.currentWalk!.walk_id}`, { notes: "" });
+});

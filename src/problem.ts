@@ -22,6 +22,14 @@ export function present<T extends Record<string, unknown>>(row: T): Partial<T> {
   return out as Partial<T>;
 }
 
+/** PATCH semantics: a field left out is unchanged, an empty string clears
+ * an optional field (stored as NULL, so it is absent from responses). */
+export function clearingEmpty<T extends Record<string, unknown>>(patch: T): { [K in keyof T]: T[K] | null } {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(patch)) out[k] = v === "" ? null : v;
+  return out as { [K in keyof T]: T[K] | null };
+}
+
 export function nowIso(): string {
   return new Date().toISOString();
 }

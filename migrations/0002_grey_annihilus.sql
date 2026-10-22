@@ -1,0 +1,1 @@
+ALTER TABLE `outbox` ADD `claimed_until` text;
