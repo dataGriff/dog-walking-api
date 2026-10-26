@@ -69,6 +69,18 @@ tasks:
             --phases fuzzing --max-examples 25 --request-timeout 10
         done
 
+  apic:
+    desc: Send a request from api/ to the dev worker, e.g. task apic -- schedule-walk (see api/*.http)
+    dir: api
+    cmds:
+      - apic run {{.CLI_ARGS}}
+
+  apic:smoke:
+    desc: Validate api/*.http, run every flow and the features against a worker this task starts (needs apic on PATH)
+    cmds:
+      - apic validate -C api
+      - node scripts/with-worker.mjs -- sh -c 'apic run -C api health.http fixtures.http clients.http dogs.http walks.http cleanup.http --no-session --var baseUrl=$BASE_URL && apic test -C api --var baseUrl=$BASE_URL'
+
   contracts:verify:
     desc: The definition of done - strict features, the null-service control, then (with a worker up at BASE_URL and Docker) contract tests and schema fuzz
     cmds:

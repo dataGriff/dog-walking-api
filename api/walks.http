@@ -1,0 +1,168 @@
+### Schedule a walk for tomorrow
+# @name schedule-walk
+# @description Books the dog from create-dog (run first if needed) and commits a walk.scheduled event
+# @step I schedule a walk for {durationMinutes} minutes
+# @ref create-dog
+# @assert status == 201
+# @assert body.$.status == scheduled
+# @assert body.$.duration_minutes == {{durationMinutes}}
+# @assert body.$.dog_ids.# == 1
+# @assert body.$.dog_ids[0] == {{dogId}}
+# @assert body.$.started_at not exists
+# @capture walkId = body.$.walk_id
+POST {{baseUrl}}/walks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "scheduled_at": "{{$datetime iso8601 1 d}}",
+  "duration_minutes": {{durationMinutes}},
+  "dog_ids": ["{{dogId}}"],
+  "notes": "Meet at the park gate"
+}
+
+### Fetch the walk
+# @name get-walk
+# @step I fetch the walk
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.walk_id == {{walkId}}
+GET {{baseUrl}}/walks/{{walkId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### The walk is in the scheduled list
+# @name list-scheduled-walks
+# @description Filter by status; scheduled_from and scheduled_to take RFC 3339 instants
+# @step I list my scheduled walks
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.walks.# >= 1
+# @assert body.$.walks[*].walk_id contains {{walkId}}
+GET {{baseUrl}}/walks
+    ?status=scheduled
+    &scheduled_from={{$datetime iso8601}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### The scheduling event is in the outbox
+# @name walk-scheduled-event
+# @description Test harness (AUTH_MODE=test only): the CloudEvents envelope the outbox relays to the queue
+# @step the walk.scheduled event is in the outbox
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.rows.# == 1
+# @assert body.$.rows[0].envelope.specversion == 1.0
+# @assert body.$.rows[0].envelope.type contains scheduled
+# @assert body.$.rows[0].envelope.data.walk_id == {{walkId}}
+GET {{baseUrl}}/__test/outbox
+    ?subject={{walkId}}
+Accept: application/json
+
+### A dog on an open walk cannot be deleted
+# @name delete-booked-dog
+# @step I try to delete the dog
+# @ref schedule-walk
+# @assert status == 409
+# @assert body.$.error_code == dog_has_open_walks
+DELETE {{baseUrl}}/dogs/{{dogId}}
+Authorization: Bearer {{token}}
+
+### Reschedule: only a scheduled walk can be amended
+# @name reschedule-walk
+# @step I move the walk to the day after and make it {durationMinutes} minutes
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.duration_minutes == {{durationMinutes}}
+# @assert body.$.status == scheduled
+PATCH {{baseUrl}}/walks/{{walkId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"scheduled_at": "{{$datetime iso8601 2 d}}", "duration_minutes": {{durationMinutes}}}
+
+### Start the walk
+# @name start-walk
+# @step I start the walk
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.status == in_progress
+# @assert body.$.started_at exists
+POST {{baseUrl}}/walks/{{walkId}}/start
+Authorization: Bearer {{token}}
+
+### Complete it, with a note
+# @name complete-walk
+# @step I complete the walk
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.status == completed
+# @assert body.$.completed_at exists
+# @assert body.$.notes == Two laps of the lake
+POST {{baseUrl}}/walks/{{walkId}}/complete
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notes": "Two laps of the lake"
+}
+
+### A completed walk cannot be cancelled
+# @name cancel-closed-walk
+# @step I try to cancel the completed walk
+# @ref schedule-walk
+# @assert status == 409
+# @assert body.$.error_code == walk_already_closed
+POST {{baseUrl}}/walks/{{walkId}}/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reason": "bad_weather"
+}
+
+### Schedule another walk; it becomes the walk later requests mean
+# @name schedule-another-walk
+# @step I schedule another walk
+# @ref create-dog
+# @assert status == 201
+# @assert body.$.status == scheduled
+# @capture walkId = body.$.walk_id
+POST {{baseUrl}}/walks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "scheduled_at": "{{$datetime iso8601 3 d}}",
+  "duration_minutes": 45,
+  "dog_ids": ["{{dogId}}"]
+}
+
+### Cancel it
+# @name cancel-walk
+# @description reason is one of client_request, walker_unavailable, bad_weather, dog_unwell
+# @step I cancel the walk because of {reason}
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.status == cancelled
+# @assert body.$.cancelled_at exists
+# @assert body.$.cancellation_reason == {{reason}}
+POST {{baseUrl}}/walks/{{walkId}}/cancel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"reason": "{{reason}}"}
+
+### Filtering by status: the cancelled walk is there, nothing open is
+# @name list-cancelled-walks
+# @step I list my cancelled walks for the next week
+# @ref schedule-walk
+# @assert status == 200
+# @assert body.$.walks[*].walk_id contains {{walkId}}
+# @assert body.$.walks[?(@.status != "cancelled")].length == 0
+GET {{baseUrl}}/walks
+    ?status=cancelled
+    &scheduled_from={{$datetime iso8601}}
+    &scheduled_to={{$datetime iso8601 1 w}}
+Authorization: Bearer {{token}}
+Accept: application/json

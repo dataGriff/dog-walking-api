@@ -40,6 +40,41 @@ curl -s -X POST localhost:8787/__test/reset     # seed the mock fixtures (walker
 For Clerk locally, copy `.dev.vars.example` to `.dev.vars` with your
 `CLERK_SECRET_KEY` and run `npx wrangler dev` (AUTH_MODE defaults to clerk).
 
+### Requests by hand, with apic
+
+`api/` is an [apic](https://apic.sh/) project: plain `.http` files that
+describe every route, with assertions and captures, runnable from the
+terminal, an editor (VS Code REST Client, JetBrains), CI or an AI agent.
+Install it with `brew install hungovercoders/tap/apic` or `curl -fsSL
+https://raw.githubusercontent.com/hungovercoders/apic/main/install.sh |
+sh`, start `task dev` in one terminal, then in another:
+
+```sh
+cd api
+apic list                       # every request, its phrases, where it lives
+apic run health.http            # /healthz, then a 401 without a token
+apic run fixtures.http          # reseed and read the contract-test fixtures
+apic run clients.http           # create, fetch, list, patch, a 400 and a 404
+apic run dogs.http              # same for a dog of that client
+apic run walks.http             # schedule, see the outbox event, start, complete, cancel
+apic run cleanup.http           # delete the dog and the client
+apic test                       # the Gherkin features under api/features/
+apic ui                         # the same project, interactively
+```
+
+Captures (`clientId`, `dogId`, `walkId`) live in `api/.apic/session.json`,
+so `apic run schedule-walk` on its own runs `create-client` and
+`create-dog` first when they are missing (`# @ref`), and `apic session
+clear` forgets them. `task apic -- get-walk`, `apic run start-walk
+--json | jq`, `apic curl schedule-walk` and `apic describe cancel-walk`
+all work from the same files, and `task apic:smoke` runs everything
+against a fresh worker, which is what CI does. The env file's `token` is
+the test-mode bearer for the fixtures' walker; for a deployed worker add
+an environment with a Clerk session JWT in the gitignored
+`api/http-client.private.env.json`. The Agent Skill under
+`.claude/skills/apic/` and `.agents/skills/apic/` tells an agent how to
+use the files.
+
 ## The definition of done
 
 `task contracts:verify` runs, in order:

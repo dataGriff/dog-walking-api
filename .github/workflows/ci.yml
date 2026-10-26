@@ -31,6 +31,9 @@ jobs:
         run: task features:null
       - name: Schema fuzz against a local worker
         run: node scripts/with-worker.mjs -- task schemathesis
+      - uses: hungovercoders/apic/setup-apic@v0
+      - name: Request files and features under api/ against a local worker
+        run: task apic:smoke
       # Microcks contract tests: the spec toolchain's docker-compose stack replays every
       # REST example against the worker and validates the responses against the OpenAPI.
       # TEST_DEFAULT_WALKER is the test harness switch that lets an unauthenticated

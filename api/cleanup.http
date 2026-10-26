@@ -1,0 +1,26 @@
+### Delete the dog the demo registered
+# @name delete-dog
+# @description 204 once every walk it was booked on is completed or cancelled
+# @step I delete the dog
+# @ref create-dog
+# @assert status == 204
+DELETE {{baseUrl}}/dogs/{{dogId}}
+Authorization: Bearer {{token}}
+
+### And the client
+# @name delete-client
+# @step I delete the client
+# @ref create-client
+# @assert status == 204
+DELETE {{baseUrl}}/clients/{{clientId}}
+Authorization: Bearer {{token}}
+
+### Gone
+# @name deleted-client-not-found
+# @step I fetch the deleted client
+# @ref create-client
+# @assert status == 404
+# @assert body.$.error_code == client_not_found
+GET {{baseUrl}}/clients/{{clientId}}
+Authorization: Bearer {{token}}
+Accept: application/json
