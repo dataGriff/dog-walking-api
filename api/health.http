@@ -1,0 +1,18 @@
+### Is the worker up?
+# @name health
+# @description The unauthenticated liveness probe
+# @step the API is up
+# @assert status == 200
+# @assert body.$.ok == true
+GET {{baseUrl}}/healthz
+Accept: application/json
+
+### Every record route needs a bearer token
+# @name unauthenticated
+# @description No Authorization header: the Problem body names the error code
+# @step I list clients without a token
+# @assert status == 401
+# @assert body.$.error_code == unauthenticated
+# @assert body.$.message contains bearer
+GET {{baseUrl}}/clients
+Accept: application/json

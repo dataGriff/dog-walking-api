@@ -1,0 +1,183 @@
+# Installed into the implementation repo by the implement-service skill
+# (step 6). Replace every clients or walks with the service name and every
+# dataGriff/dog-walking-spec with the spec repo's owner/repo when copying.
+#
+# The pull half of the contract sync loop: Renovate bumps contracts.lock
+# when the spec repo tags a new clients or walks/v<x.y.z>; this workflow runs the
+# deterministic gates against the new pin and wakes an agent ONLY when
+# they are red. Green minors auto-merge with no agent involved.
+#
+# Assumes the repo carries `task contracts:fetch` (pin fetcher) and
+# `task contracts:verify` (contract tests + strict features + null-service
+# negative control + schemathesis, resolved against .contracts/) as defined
+# in the skill's step 2. contracts:verify holds the RUNNING implementation
+# to the contracts, so the gates step below must start your service first -
+# replace its start/wait lines with your stack's equivalents (mirror your
+# ci.yml); against nothing the gates are red and a legitimate pin bump
+# could never auto-merge.
+#
+# One-time setup:
+#   - ONE Claude credential as an actions secret - ANTHROPIC_API_KEY
+#     (Claude Console, pay-per-token) or CLAUDE_CODE_OAUTH_TOKEN (from
+#     `claude setup-token`, uses your Claude subscription). The API key
+#     wins when both are set; the run fails with a clear error only when
+#     the agent is needed and neither exists. Claude GitHub App installed
+#     (its pushes retrigger this workflow; plain GITHUB_TOKEN pushes would
+#     not, silently freezing the loop)
+#   - repo setting "Allow auto-merge" on; branch protection on main
+#     requiring the `converge` check (platformAutomerge in renovate.json
+#     then merges green bumps regardless of who pushed last)
+#
+# Behaviour notes:
+#   - This run FAILS whenever the gates are red, even after dispatching the
+#     agent - the red status on the current head is what stops auto-merge
+#     from racing the agent's push. The agent's push creates a new head
+#     whose own run decides.
+#   - Renovate stops rebasing a branch once a foreign commit lands on it,
+#     so the agent and Renovate never fight over the branch.
+#   - One agent attempt per external push: if HEAD already carries the
+#     [contract-converge] marker and the gates are still red, the workflow
+#     labels the PR contract-converge-failed and stops instead of looping.
+name: contract-converge
+on:
+  pull_request:
+    paths: ["contracts.lock"]
+
+concurrency:
+  group: contract-converge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  converge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Verify the lock against the spec tags
+        id: lock
+        run: |
+          set -e
+          ok=true; versions=""
+          while read -r version sha; do
+            [ -n "$version" ] || continue
+            tag_sha=$(git ls-remote https://github.com/dataGriff/dog-walking-spec "refs/tags/$version" | cut -f1)
+            [ -n "$tag_sha" ] || { echo "::error::tag $version does not exist in the spec repo"; exit 1; }
+            versions="$versions $version"
+            if [ "$sha" != "$tag_sha" ]; then
+              # Lightweight tags make the tag sha the commit sha, so a mismatch
+              # means the lock digest is stale or wrong - red; the agent fixes
+              # the sha line (never the version) and pushes.
+              echo "::warning::lock sha $sha for $version != tag commit $tag_sha"
+              ok=false
+            fi
+          done < <(awk '/^version:/{v=$2} /^sha:/{print v, $2}' contracts.lock)
+          echo "version=${versions# }" >> "$GITHUB_OUTPUT"
+          echo "sha_ok=$ok" >> "$GITHUB_OUTPUT"
+
+      - uses: jdx/mise-action@v2
+
+      - name: Fetch pinned contracts and run the gates
+        id: gates
+        if: steps.lock.outputs.sha_ok == 'true'
+        continue-on-error: true
+        run: |
+          task contracts:fetch
+          npm ci
+          npm run typecheck
+          # The feature suite and schema fuzz start their own local worker.
+          task features
+          task features:null
+          node scripts/with-worker.mjs -- task schemathesis
+          # Contract tests need a worker the Microcks containers can reach.
+          rm -rf .wrangler/state
+          npx wrangler d1 migrations apply dog-walking --local
+          (npx wrangler dev --port 8787 --ip 0.0.0.0 --var AUTH_MODE:test --var TEST_DEFAULT_WALKER:user_2walkeranna > worker.log 2>&1 &)
+          for i in $(seq 1 60); do curl -fsS localhost:8787/healthz > /dev/null 2>&1 && break; sleep 1; done
+          curl -fsS -X POST localhost:8787/__test/reset > /dev/null
+          task -d .contracts/walks mocks:up
+          # The gateway of the mock stack's network is how its containers reach the worker on the runner.
+          mc=$(docker ps --filter name=microcks --format '{{.Names}}' | grep -v minion | head -1)
+          gw=$(docker inspect "$mc" --format '{{range .NetworkSettings.Networks}}{{.Gateway}}{{end}}')
+          echo "microcks container $mc reaches the worker via $gw"
+          task contracts:test REST_ENDPOINT=http://$gw:8787
+          task -d .contracts/walks mocks:down
+
+      - name: Done - gates green on this pin
+        if: steps.lock.outputs.sha_ok == 'true' && steps.gates.outcome == 'success'
+        run: echo "implementation satisfies ${{ steps.lock.outputs.version }}"
+
+      - name: Loop guard - one agent attempt per external push
+        if: steps.lock.outputs.sha_ok != 'true' || steps.gates.outcome != 'success'
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git log -1 --format=%B | grep -q "\[contract-converge\]"; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label contract-converge-failed
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --body "contract-converge: the agent's attempt did not turn the gates green - see this run's logs. Converge manually or push a fix; the next external push gets one fresh agent attempt."
+            echo "spent=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "spent=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve Claude credential - API key first, then OAuth token
+        id: auth
+        if: steps.guard.outputs.spent == 'false'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "mode=api-key" >> "$GITHUB_OUTPUT"
+            echo "using ANTHROPIC_API_KEY (Console, pay-per-token)"
+          elif [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "mode=oauth" >> "$GITHUB_OUTPUT"
+            echo "using CLAUDE_CODE_OAUTH_TOKEN (Claude subscription)"
+          else
+            echo "::error::the converge agent needs a Claude credential and none is configured - add an actions secret: ANTHROPIC_API_KEY (Claude Console, pay-per-token) or CLAUDE_CODE_OAUTH_TOKEN (run 'claude setup-token', uses your Claude subscription)"
+            exit 1
+          fi
+
+      - uses: anthropics/claude-code-action@v1
+        if: steps.guard.outputs.spent == 'false'
+        with:
+          anthropic_api_key: ${{ steps.auth.outputs.mode == 'api-key' && secrets.ANTHROPIC_API_KEY || '' }}
+          claude_code_oauth_token: ${{ steps.auth.outputs.mode == 'oauth' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
+          claude_args: "--allowedTools Bash,Edit,Write,Read,Glob,Grep"
+          prompt: |
+            The contract pin for the clients or walks service this repo implements
+            has been bumped to ${{ steps.lock.outputs.version }} and the
+            deterministic gates are red. Converge the implementation - update,
+            never regenerate.
+
+            1. If the verify step reported a lock sha mismatch, correct ONLY
+               the sha line of contracts.lock to the tag's commit sha
+               (git ls-remote the spec repo for refs/tags/${{ steps.lock.outputs.version }}).
+               Never change the version line.
+            2. Run `task contracts:fetch`, then diff .contracts/ against the
+               previous pin (fetch it from the base branch's contracts.lock)
+               to scope your changes; leave everything the contract diff does
+               not touch alone.
+            3. Update this implementation minimally until
+               `task contracts:verify` is green. Never edit anything under
+               .contracts/, never weaken tests, never disable strict feature
+               binding.
+            4. Commit (conventional message ending with the marker
+               [contract-converge]) and push to this same branch. Your push
+               retriggers the gates on the new head.
+            5. If you cannot make the gates green, still commit and push what
+               is safe, and say exactly which checks fail and why in the
+               commit body. Never force a green result.
+
+      - name: Report red - the converged head's own run decides
+        if: steps.lock.outputs.sha_ok != 'true' || steps.gates.outcome != 'success'
+        run: exit 1

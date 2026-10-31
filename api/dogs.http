@@ -1,0 +1,73 @@
+### Register a dog for the client
+# @name create-dog
+# @description Needs clientId from create-client, which # @ref runs when it is missing
+# @step a dog named {dogName} exists
+# @ref create-client
+# @assert status == 201
+# @assert body.$.dog_id exists
+# @assert body.$.client_id == {{clientId}}
+# @assert body.$.name == {{dogName}}
+# @capture dogId = body.$.dog_id
+POST {{baseUrl}}/dogs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "client_id": "{{clientId}}",
+  "name": "{{dogName}}",
+  "breed": "Border Collie",
+  "date_of_birth": "2021-03-09",
+  "notes": "Afraid of bins"
+}
+
+### Fetch the dog
+# @name get-dog
+# @step I fetch the dog
+# @ref create-dog
+# @assert status == 200
+# @assert body.$.dog_id == {{dogId}}
+# @assert body.$.breed == Border Collie
+GET {{baseUrl}}/dogs/{{dogId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### The client's dogs
+# @name list-client-dogs
+# @description Filter by client_id: only this client's dogs come back
+# @step I list the client's dogs
+# @ref create-dog
+# @assert status == 200
+# @assert body.$.dogs.# == 1
+# @assert body.$.dogs[0].dog_id == {{dogId}}
+GET {{baseUrl}}/dogs
+    ?client_id={{clientId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Add a note, clear the date of birth
+# @name update-dog
+# @step I update the dog's notes
+# @ref create-dog
+# @assert status == 200
+# @assert body.$.notes == Loves the river
+# @assert body.$.date_of_birth not exists
+PATCH {{baseUrl}}/dogs/{{dogId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "notes": "Loves the river",
+  "date_of_birth": ""
+}
+
+### A dog must belong to one of the walker's clients
+# @name dog-for-unknown-client
+# @step I register a dog for a client that is not mine
+# @assert status == 400
+# @assert body.$.error_code == invalid_dog
+# @assert body.$.message contains not one of your clients
+POST {{baseUrl}}/dogs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{"client_id": "{{$uuid}}", "name": "Stray"}

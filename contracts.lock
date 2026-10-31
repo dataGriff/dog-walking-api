@@ -1,0 +1,8 @@
+# Contract pins - each version is a spec repo release tag, each sha its commit.
+# Renovate bumps them; `task contracts:fetch` checks the shas out read-only.
+# clients
+version: clients/v1.0.0
+sha: 643845d9f4d5a75bd1a95fc489f641424aadc603
+# walks
+version: walks/v1.0.0
+sha: 643845d9f4d5a75bd1a95fc489f641424aadc603

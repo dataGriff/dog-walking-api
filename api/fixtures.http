@@ -1,0 +1,42 @@
+### Reseed the fixtures the contract tests replay against
+# @name reset-fixtures
+# @description Test harness (AUTH_MODE=test only): wipes every table and seeds walker user_2walkeranna
+# @step the fixtures are seeded
+# @assert status == 200
+# @assert body.$.reset == true
+# @assert body.$.fixture_walker == user_2walkeranna
+POST {{baseUrl}}/__test/reset
+
+### The seeded clients
+# @name seeded-clients
+# @description The local token is the fixture walker's, so these are the rows the spec's mocks/ examples describe
+# @step I list the seeded clients
+# @assert status == 200
+# @assert body.$.clients.# >= 2
+# @assert body.$.clients[?(@.name == "Alice Ahmed")].length == 1
+# @assert body.$.clients[?(@.name == "Ben Brooks")].length == 1
+GET {{baseUrl}}/clients
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Biscuit, the fixture cockapoo
+# @name biscuit
+# @step I fetch Biscuit
+# @assert status == 200
+# @assert body.$.name == Biscuit
+# @assert body.$.breed == Cockapoo
+# @assert body.$.client_id == 11111111-1111-4111-8111-111111111111
+GET {{baseUrl}}/dogs/22222222-2222-4222-8222-222222222222
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Biscuit's walks, oldest first
+# @name seeded-walks
+# @step I list the seeded walks
+# @assert status == 200
+# @assert body.$.walks.# >= 4
+# @assert body.$.walks[?(@.status == "in_progress")].length >= 1
+# @assert body.$.walks[?(@.walk_id == "33333333-3333-4333-8333-333333333333")].notes contains Meet at the park gate
+GET {{baseUrl}}/walks
+Authorization: Bearer {{token}}
+Accept: application/json

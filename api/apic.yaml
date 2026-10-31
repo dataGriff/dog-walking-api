@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://apic.sh/schemas/apic.schema.json
+# The requests in this directory run against the worker `task dev` starts
+# (AUTH_MODE=test, port 8787). `token` in http-client.env.json is the test
+# mode bearer `test:<walker_id>`; for a deployed worker add an environment
+# whose token is a Clerk session JWT, in the gitignored
+# http-client.private.env.json.
+env: local
+# Keep the last 10 responses of each request under .apic/history
+# (gitignored, mode 0600) for apic history, history diff and select.
+history: 10

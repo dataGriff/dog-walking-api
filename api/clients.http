@@ -1,0 +1,85 @@
+### Create a client
+# @name create-client
+# @description Create a client of the walker the token names; later requests reuse its id
+# @step a client named {clientName} exists
+# @assert status == 201
+# @assert body.$.client_id exists
+# @assert body.$.name == {{clientName}}
+# @capture clientId = body.$.client_id
+POST {{baseUrl}}/clients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "{{clientName}}",
+  "email": "carys@example.com",
+  "phone": "+44 7700 900123",
+  "address": "12 Castle Street, Cardiff",
+  "notes": "Ring the bell twice"
+}
+
+### Fetch the client by id
+# @name get-client
+# @description Runs create-client first when no clientId is in the session
+# @step I fetch the client
+# @ref create-client
+# @assert status == 200
+# @assert body.$.client_id == {{clientId}}
+# @assert body.$.created_at matches ^\d{4}-\d{2}-\d{2}T
+GET {{baseUrl}}/clients/{{clientId}}
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List the walker's clients, newest first
+# @name list-clients
+# @step I list my clients
+# @ref create-client
+# @assert status == 200
+# @assert body.$.clients isArray
+# @assert body.$.clients.# >= 1
+# @assert body.$.clients[0].client_id == {{clientId}}
+GET {{baseUrl}}/clients
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Change the phone number and clear the notes
+# @name update-client
+# @description PATCH: a field left out is unchanged, an empty string clears an optional one
+# @step I update the client's phone number
+# @ref create-client
+# @assert status == 200
+# @assert body.$.phone == +44 7700 900456
+# @assert body.$.notes not exists
+# @assert body.$.address == 12 Castle Street, Cardiff
+PATCH {{baseUrl}}/clients/{{clientId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phone": "+44 7700 900456",
+  "notes": ""
+}
+
+### A client needs a name
+# @name invalid-client
+# @description Validation failures are 400 with a Problem body
+# @step I create a client without a name
+# @assert status == 400
+# @assert body.$.error_code == invalid_client
+# @assert body.$.message contains name
+POST {{baseUrl}}/clients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "nobody@example.com"
+}
+
+### An id the walker does not own is not found
+# @name client-not-found
+# @step I fetch a client that does not exist
+# @assert status == 404
+# @assert body.$.error_code == client_not_found
+GET {{baseUrl}}/clients/{{$uuid}}
+Authorization: Bearer {{token}}
+Accept: application/json
