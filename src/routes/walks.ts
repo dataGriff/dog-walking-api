@@ -1,5 +1,6 @@
 import { Hono, type Context } from "hono";
-import { and, asc, eq, gte, inArray, isNull, lt, sql } from "drizzle-orm";
+import { and, asc, eq, getTableColumns, gte, isNull, lt, sql, type SQL } from "drizzle-orm";
+import { SQLiteSyncDialect } from "drizzle-orm/sqlite-core";
 import { z } from "zod";
 import type { AppEnv } from "../env";
 import { database, type Database } from "../db";
@@ -40,26 +41,33 @@ function utc(iso: string): string {
   return new Date(iso).toISOString();
 }
 
-async function ownedDogs(db: Database, walkerId: string, ids: string[]): Promise<string[] | null> {
-  const unique = [...new Set(ids)];
-  let found = 0;
-  // Chunked: D1 binds at most 100 parameters per statement.
-  for (let i = 0; i < unique.length; i += 50) {
-    const rows = await db
-      .select({ dog_id: dogs.dog_id })
-      .from(dogs)
-      .where(and(eq(dogs.walker_id, walkerId), inArray(dogs.dog_id, unique.slice(i, i + 50))))
-      .all();
-    found += rows.length;
-  }
-  return found === unique.length ? unique : null;
+
+const dialect = new SQLiteSyncDialect();
+
+/** Every id in the JSON array `idsJson` is a dog of `walkerId`: one bound
+ * parameter however many dogs, checked inside the statement that writes the
+ * walk, so a dog removed meanwhile cannot be booked. */
+function ownsAllDogs(walkerId: string, idsJson: string): SQL {
+  return sql`(SELECT count(*) FROM ${dogs} WHERE ${dogs.walker_id} = ${walkerId}
+    AND ${dogs.dog_id} IN (SELECT value FROM json_each(${idsJson}))) = json_array_length(${idsJson})`;
 }
 
-/** True when every id in the JSON array bound as ?5 is a dog of the walker
- * bound as ?2: one parameter however many dogs, checked in the statement
- * that writes the walk. */
-const OWNS_ALL_DOGS =
-  "(SELECT count(*) FROM dogs WHERE dogs.walker_id = ?2 AND dogs.dog_id IN (SELECT value FROM json_each(?5))) = json_array_length(?5)";
+/** INSERT the walk only WHERE `condition` holds. The columns come from the
+ * Drizzle table and the values from a full WalkRow, so a column added to the
+ * schema fails to compile here rather than at runtime. */
+function insertWalkWhere(row: WalkRow, condition: SQL) {
+  const columns = getTableColumns(walks);
+  const keys = Object.keys(columns) as (keyof WalkRow)[];
+  return dialect.sqlToQuery(
+    sql`INSERT INTO ${walks} (${sql.join(
+      keys.map((k) => sql.identifier(columns[k].name)),
+      sql`, `,
+    )}) SELECT ${sql.join(
+      keys.map((k) => sql`${row[k]}`),
+      sql`, `,
+    )} WHERE ${condition}`,
+  );
+}
 
 async function loadWalk(db: Database, walkerId: string, walkId: string) {
   return db
@@ -188,15 +196,14 @@ export const walkRoutes = new Hono<AppEnv>()
     if (!body.ok) return body.response;
     const db = database(c.env.DB);
     const walkerId = c.get("walkerId");
-    const dogIdsOwned = await ownedDogs(db, walkerId, body.value.dog_ids);
-    if (!dogIdsOwned) return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
+    const dogIds = [...new Set(body.value.dog_ids)];
     const now = nowIso();
     const row: WalkRow = {
       walk_id: crypto.randomUUID(),
       walker_id: walkerId,
       scheduled_at: utc(body.value.scheduled_at),
       duration_minutes: body.value.duration_minutes,
-      dog_ids: JSON.stringify(dogIdsOwned),
+      dog_ids: JSON.stringify(dogIds),
       status: "scheduled",
       notes: body.value.notes ?? null,
       started_at: null,
@@ -213,23 +220,17 @@ export const walkRoutes = new Hono<AppEnv>()
         walker_id: walkerId,
         scheduled_at: row.scheduled_at,
         duration_minutes: row.duration_minutes,
-        dog_ids: dogIdsOwned,
+        dog_ids: dogIds,
       },
       now,
     );
-    // The ownership check above is advisory; this insert re-checks it in the
-    // same statement, so a dog removed meanwhile cannot end up on the walk.
-    // The outbox row is inserted only if the walk was.
+    // The walk is inserted only if every dog is the walker's, checked in the
+    // same statement; the outbox row only if the walk was.
     const ob = outboxRow(CHANNELS.scheduled, event);
+    const insert = insertWalkWhere(row, ownsAllDogs(walkerId, row.dog_ids));
     const d1 = c.env.DB;
     const [inserted] = await d1.batch([
-      d1
-        .prepare(
-          "INSERT INTO walks (walk_id, walker_id, scheduled_at, duration_minutes, dog_ids, status, notes, created_at) " +
-            "SELECT ?1, ?2, ?3, ?4, ?5, 'scheduled', ?6, ?7 WHERE " +
-            `${OWNS_ALL_DOGS}`,
-        )
-        .bind(row.walk_id, walkerId, row.scheduled_at, row.duration_minutes, row.dog_ids, row.notes, now),
+      d1.prepare(insert.sql).bind(...insert.params),
       d1
         .prepare(
           "INSERT INTO outbox (event_id, channel, subject, envelope, created_at) " +
@@ -260,14 +261,9 @@ export const walkRoutes = new Hono<AppEnv>()
     if (body.value.scheduled_at !== undefined) changes.scheduled_at = utc(body.value.scheduled_at);
     if (body.value.duration_minutes !== undefined) changes.duration_minutes = body.value.duration_minutes;
     if (body.value.notes !== undefined) changes.notes = body.value.notes === "" ? null : body.value.notes;
-    if (body.value.dog_ids !== undefined) {
-      const owned = await ownedDogs(db, walkerId, body.value.dog_ids);
-      if (!owned) return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
-      changes.dog_ids = JSON.stringify(owned);
-    }
+    if (body.value.dog_ids !== undefined) changes.dog_ids = JSON.stringify([...new Set(body.value.dog_ids)]);
     // Guarded on the status, so a walk started or closed since it was read is
-    // not amended, and on the new dogs still being the walker's, so a dog
-    // removed since the check above cannot be booked.
+    // not amended, and on the new dogs being the walker's.
     const updated = await db
       .update(walks)
       .set(Object.keys(changes).length > 0 ? changes : { walk_id: row.walk_id })
@@ -275,10 +271,7 @@ export const walkRoutes = new Hono<AppEnv>()
         and(
           eq(walks.walk_id, row.walk_id),
           eq(walks.status, "scheduled"),
-          changes.dog_ids === undefined
-            ? undefined
-            : sql`(SELECT count(*) FROM dogs WHERE dogs.walker_id = ${walkerId}
-                  AND dogs.dog_id IN (SELECT value FROM json_each(${changes.dog_ids}))) = json_array_length(${changes.dog_ids})`,
+          changes.dog_ids === undefined ? undefined : ownsAllDogs(walkerId, changes.dog_ids),
         ),
       )
       .returning()

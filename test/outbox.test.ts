@@ -27,17 +27,20 @@ function setup() {
   }, { schema });
 
   let down = false;
+  let calls = 0;
+  const poison = new Set<string>();
   const sent: string[] = [];
-  const fail = () => {
-    if (down) throw new Error("queue unavailable");
+  const fail = (ids: string[]) => {
+    calls++;
+    if (down || ids.some((id) => poison.has(id))) throw new Error("queue refused");
   };
   const queue = {
     async sendBatch(messages: { body: { id: string } }[]) {
-      fail();
+      fail(messages.map((m) => m.body.id));
       sent.push(...messages.map((m) => m.body.id));
     },
     async send(body: { id: string }) {
-      fail();
+      fail([body.id]);
       sent.push(body.id);
     },
   } as unknown as Queue;
@@ -58,6 +61,9 @@ function setup() {
     enqueue,
     unpublished,
     setDown: (v: boolean) => (down = v),
+    poison: (id: string) => poison.add(id),
+    accept: (id: string) => poison.delete(id),
+    calls: () => calls,
   };
 }
 
@@ -79,6 +85,7 @@ describe("outbox relay", () => {
     }
     expect(o.unpublished()).toBe(1);
     o.setDown(false);
+    vi.advanceTimersByTime(3_600_000); // a stuck row is retried hourly
     expect(await relayOutbox(o.db, o.queue, false)).toBe(1);
     expect(o.sent).toEqual(["e1"]);
     expect(o.unpublished()).toBe(0);
@@ -106,5 +113,40 @@ describe("outbox relay", () => {
     vi.advanceTimersByTime(61_000);
     await relayOutbox(o.db, o.queue, false);
     expect(o.sent).toEqual(["w2-scheduled", "w1-scheduled", "w1-completed"]);
+  });
+
+  it("stops early when the queue is down instead of trying every row", async () => {
+    const o = setup();
+    for (let i = 0; i < 120; i++) o.enqueue(`w${i}`, `e${i}`);
+    o.setDown(true);
+    await relayOutbox(o.db, o.queue, false);
+    // One failed batch, then a few single sends, then the relay gives up.
+    expect(o.calls()).toBeLessThanOrEqual(5);
+    o.setDown(false);
+    vi.advanceTimersByTime(61_000);
+    expect(await relayOutbox(o.db, o.queue, false)).toBe(120);
+  });
+
+  it("a stuck event stops holding its walk's later events back, and is still retried", async () => {
+    const o = setup();
+    o.enqueue("w1", "w1-scheduled");
+    o.enqueue("w1", "w1-completed");
+    o.poison("w1-scheduled");
+    for (let i = 0; i < STUCK_AFTER; i++) {
+      await relayOutbox(o.db, o.queue, false);
+      vi.advanceTimersByTime(61_000);
+    }
+    expect(o.sent).toEqual([]); // held back while w1-scheduled was still being tried
+    await relayOutbox(o.db, o.queue, false);
+    expect(o.sent).toEqual(["w1-completed"]); // released once w1-scheduled is stuck
+    // Retried hourly, not every minute, and published once the queue accepts it.
+    const before = o.calls();
+    await relayOutbox(o.db, o.queue, false);
+    expect(o.calls()).toBe(before); // still within its hour-long lease
+    vi.advanceTimersByTime(3_600_000);
+    o.accept("w1-scheduled");
+    await relayOutbox(o.db, o.queue, false);
+    expect(o.sent).toEqual(["w1-completed", "w1-scheduled"]); // never dropped
+    expect(o.unpublished()).toBe(0);
   });
 });

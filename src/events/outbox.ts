@@ -6,9 +6,14 @@ import type { Envelope } from "./cloudevents";
 const PAGE = 50;
 /** How long a relay owns the rows it claimed before another may retry them. */
 const LEASE_MS = 60_000;
-/** From this many attempts on, a row still unpublished is logged as stuck.
- * It is never given up on: an outage delays events, it does not lose them. */
+/** From this many attempts on, a row still unpublished is stuck: it is
+ * logged, retried only hourly, and no longer holds its walk's later events
+ * back. It is never given up on: an outage delays events, it does not lose them. */
 export const STUCK_AFTER = 10;
+const STUCK_LEASE_MS = 3_600_000;
+/** Consecutive single-send failures after which the queue is taken to be
+ * down and the rest of this relay is skipped (the leases bring them back). */
+const DOWN_AFTER = 3;
 
 /** The outbox insert to batch alongside the aggregate write. */
 export function outboxRow(channel: string, env: Envelope<{ walk_id: string }>) {
@@ -41,13 +46,16 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
   // Each page is claimed under a lease before it is sent, so concurrent
   // relays (every write request starts one, plus the cron) publish disjoint
   // rows. A row the queue refuses is retried after its lease lapses, however
-  // long that takes. Only a walk's earliest unpublished event is claimable,
-  // so its later events wait behind it and a walk's events publish in order;
-  // other walks are not held up.
+  // long that takes. A walk's later events wait behind its earliest
+  // unpublished one, so a walk's events publish in order, unless that one
+  // is stuck: a single bad message must not freeze its walk forever.
+  // When the queue looks down the relay stops early rather than retrying
+  // every row on every request.
   let sent = 0;
   for (let page = 0; page < 20; page++) {
     const now = new Date().toISOString();
     const leaseUntil = new Date(Date.now() + LEASE_MS).toISOString();
+    const stuckLeaseUntil = new Date(Date.now() + STUCK_LEASE_MS).toISOString();
     const claimable = db
       .select({ event_id: outbox.event_id })
       .from(outbox)
@@ -56,7 +64,8 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
           isNull(outbox.published_at),
           or(isNull(outbox.claimed_until), lt(outbox.claimed_until, now)),
           sql`NOT EXISTS (SELECT 1 FROM outbox AS earlier WHERE earlier.subject = ${outbox.subject}
-                AND earlier.published_at IS NULL AND earlier.created_at < ${outbox.created_at})`,
+                AND earlier.published_at IS NULL AND earlier.created_at < ${outbox.created_at}
+                AND earlier.attempts < ${STUCK_AFTER})`,
         ),
       )
       .orderBy(asc(outbox.created_at))
@@ -64,7 +73,11 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
     const claimed = (
       await db
         .update(outbox)
-        .set({ claimed_until: leaseUntil, attempts: sql`${outbox.attempts} + 1` })
+        .set({
+          // SET reads the row's old values, so attempts + 1 is this attempt.
+          claimed_until: sql`CASE WHEN ${outbox.attempts} + 1 >= ${STUCK_AFTER} THEN ${stuckLeaseUntil} ELSE ${leaseUntil} END`,
+          attempts: sql`${outbox.attempts} + 1`,
+        })
         .where(inArray(outbox.event_id, claimable))
         .returning()
         .all()
@@ -72,17 +85,23 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
     if (claimed.length === 0) break;
 
     const published: string[] = [];
-    for (const chunk of byteChunks(claimed)) {
+    let failedInARow = 0;
+    chunks: for (const chunk of byteChunks(claimed)) {
       try {
         await queue.sendBatch(chunk.map(message));
         published.push(...chunk.map((row) => row.event_id));
+        failedInARow = 0;
       } catch {
-        // One bad message must not hold back the rest: retry them singly.
+        // One bad message must not hold back the rest: retry them singly,
+        // until a run of failures says the queue itself is down.
         for (const row of chunk) {
+          if (failedInARow >= DOWN_AFTER) break chunks;
           try {
             await queue.send(JSON.parse(row.envelope) as unknown, { contentType: "json" });
             published.push(row.event_id);
+            failedInARow = 0;
           } catch (err) {
+            failedInARow++;
             const stuck = row.attempts >= STUCK_AFTER ? " - stuck, still retrying" : "";
             console.error(
               `outbox ${row.event_id} not published (attempt ${row.attempts}${stuck}):`,
@@ -100,9 +119,11 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
         .run();
     }
     sent += published.length;
-    // Keep going even after a short page: publishing a walk's event may
-    // have made its next event claimable. Failed rows stay leased, so the
-    // loop ends once nothing is claimable.
+    // A page that published nothing means the queue is refusing: stop and
+    // let the leases bring these rows back. Otherwise keep going, even after
+    // a short page, since publishing a walk's event may have made its next
+    // one claimable; failed rows stay leased, so the loop ends.
+    if (published.length === 0) break;
   }
   return sent;
 }

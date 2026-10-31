@@ -76,7 +76,11 @@ export const outbox = sqliteTable(
      * concurrent relays publish disjoint rows. */
     claimed_until: text(),
   },
-  (t) => [index("outbox_unpublished").on(t.published_at, t.created_at)],
+  (t) => [
+    index("outbox_unpublished").on(t.published_at, t.created_at),
+    // The relay's ordering check: a walk's earlier unpublished events.
+    index("outbox_subject_unpublished").on(t.subject, t.published_at, t.created_at),
+  ],
 );
 
 // The walk history data contract (walks-events.odcs.yaml), one table per

@@ -1,0 +1,1 @@
+CREATE INDEX `outbox_subject_unpublished` ON `outbox` (`subject`,`published_at`,`created_at`);
