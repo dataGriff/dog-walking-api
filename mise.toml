@@ -1,0 +1,5 @@
+[tools]
+node = "22"
+task = "3.52"
+# schemathesis runs through uvx in `task schemathesis`.
+uv = "0.11"

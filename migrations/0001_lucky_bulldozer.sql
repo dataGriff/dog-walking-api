@@ -1,0 +1,1 @@
+ALTER TABLE `walks` ADD `last_event_id` text;
