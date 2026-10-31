@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="849" height="596" viewBox="0 0 849 596" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13">
+<rect width="849" height="596" rx="10" fill="#11131a"/>
+<rect width="849" height="38" rx="10" fill="#1b1e28"/>
+<rect y="28" width="849" height="10" fill="#1b1e28"/>
+<circle cx="18" cy="19" r="5.5" fill="#ff5f57"/>
+<circle cx="35" cy="19" r="5.5" fill="#febc2e"/>
+<circle cx="52" cy="19" r="5.5" fill="#28c840"/>
+<text x="424.5" y="23.5" fill="#8b93a7" text-anchor="middle" font-size="12">apic</text>
+<text x="831" y="23.5" fill="#8b93a7" text-anchor="end" font-size="12">the Gherkin features, same requests</text>
+<text x="18.0" y="60.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5 346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1" y="60.0" fill="#d6dae4" xml:space="preserve"> body.$.status == completed                                                                            </text>
+<text x="18.0" y="78.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1" y="78.0" fill="#d6dae4" xml:space="preserve"> body.$.completed_at exists</text>
+<text x="18.0" y="96.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2" y="96.0" fill="#d6dae4" xml:space="preserve"> body.$.notes == Two laps of the lake</text>
+<text x="18.0" y="132.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1" y="132.0" fill="#d6dae4" xml:space="preserve"> start-walk     </text>
+<text x="150.9 158.7 166.5 174.3" y="132.0" fill="#00d787" font-weight="bold" xml:space="preserve">200 </text>
+<text x="197.8 205.6 213.4 221.2 229.1" y="132.0" fill="#00d787" font-weight="bold" xml:space="preserve">14 ms</text>
+<text x="18.0" y="150.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1" y="150.0" fill="#d6dae4" xml:space="preserve"> complete-walk  </text>
+<text x="150.9 158.7 166.5 174.3" y="150.0" fill="#00d787" font-weight="bold" xml:space="preserve">200 </text>
+<text x="197.8 205.6 213.4 221.2 229.1" y="150.0" fill="#00d787" font-weight="bold" xml:space="preserve">20 ms</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7" y="186.0" fill="#00d787" font-weight="bold" xml:space="preserve">2 passed</text>
+<text x="80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9" y="186.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> · 2 requests · 34 ms</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="222.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">dog-walking-api/api</text>
+<text x="174.3" y="222.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">$</text>
+<text x="182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5 346.3 354.1 361.9 369.8 377.6 385.4 393.2" y="222.0" fill="#d6dae4" xml:space="preserve"> apic run cancel-closed-walk</text>
+<text x="18.0 25.8 33.6 41.5" y="240.0" fill="#00d787" font-weight="bold" xml:space="preserve">POST</text>
+<text x="57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5 346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3" y="240.0" fill="#00afff" xml:space="preserve">http://localhost:8787/walks/dd99ed74-7096-4aa1-9679-7451a93c1fa0/cancel</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0" y="258.0" fill="#ff5f5f" font-weight="bold" xml:space="preserve">409 Conflict</text>
+<text x="119.6" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">·</text>
+<text x="135.3 143.1 150.9 158.7" y="258.0" fill="#00d787" font-weight="bold" xml:space="preserve">8 ms</text>
+<text x="174.3" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">·</text>
+<text x="190.0 197.8 205.6 213.4" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">84 B</text>
+<text x="18.0" y="294.0" fill="#d6dae4" xml:space="preserve">{</text>
+<text x="33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6" y="312.0" fill="#5fd7ff" xml:space="preserve">&quot;error_code&quot;</text>
+<text x="127.4 135.3" y="312.0" fill="#d6dae4" xml:space="preserve">: </text>
+<text x="143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4" y="312.0" fill="#87d787" xml:space="preserve">&quot;walk_already_closed&quot;</text>
+<text x="307.2" y="312.0" fill="#d6dae4" xml:space="preserve">,</text>
+<text x="33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2" y="330.0" fill="#5fd7ff" xml:space="preserve">&quot;message&quot;</text>
+<text x="104.0 111.8" y="330.0" fill="#d6dae4" xml:space="preserve">: </text>
+<text x="119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5 346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0" y="330.0" fill="#87d787" xml:space="preserve">&quot;A completed walk cannot be changed.&quot;</text>
+<text x="18.0" y="348.0" fill="#d6dae4" xml:space="preserve">}</text>
+<text x="18.0" y="384.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4" y="384.0" fill="#d6dae4" xml:space="preserve"> status == 409</text>
+<text x="18.0" y="402.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5" y="402.0" fill="#d6dae4" xml:space="preserve"> body.$.error_code == walk_already_closed</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="438.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">dog-walking-api/api</text>
+<text x="174.3" y="438.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">$</text>
+<text x="182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7 338.5 346.3 354.1 361.9 369.8 377.6 385.4 393.2" y="438.0" fill="#d6dae4" xml:space="preserve"> apic test --format progress</text>
+<text x="18.0" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="25.8" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="33.6" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="41.5" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="49.3" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="57.1" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="64.9" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="72.7" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="80.5" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="88.4" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="96.2" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="104.0" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="111.8" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="119.6" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="127.4" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="135.3" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="143.1" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="150.9" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="158.7" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="166.5" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="174.3" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="182.2" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="190.0" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="197.8" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="205.6" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="213.4" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="221.2" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="229.1" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="236.9" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="244.7" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="252.5" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="260.3" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="268.1" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="276.0" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="283.8" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="291.6" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="299.4" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="307.2" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="315.0" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="322.9" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="330.7" y="456.0" fill="#28c840" xml:space="preserve">.</text>
+<text x="338.5 346.3 354.1" y="456.0" fill="#d6dae4" xml:space="preserve"> 41</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8" y="510.0" fill="#d6dae4" xml:space="preserve">6 scenarios (</text>
+<text x="119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3" y="510.0" fill="#28c840" xml:space="preserve">6 passed</text>
+<text x="182.2" y="510.0" fill="#d6dae4" xml:space="preserve">)</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4" y="528.0" fill="#d6dae4" xml:space="preserve">41 steps (</text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="528.0" fill="#28c840" xml:space="preserve">41 passed</text>
+<text x="166.5" y="528.0" fill="#d6dae4" xml:space="preserve">)</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0" y="546.0" fill="#d6dae4" xml:space="preserve">286.346429ms</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="582.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">dog-walking-api/api</text>
+<text x="174.3" y="582.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">$</text>
+</svg>

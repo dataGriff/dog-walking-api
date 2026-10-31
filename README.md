@@ -62,6 +62,13 @@ apic test                       # the Gherkin features under api/features/
 apic ui                         # the same project, interactively
 ```
 
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/apic-cli-poster.svg"><img src="docs/assets/apic-cli.svg" width="820" alt="apic validate, then apic run schedule-walk creating the client and dog first through # @ref, the walk.scheduled CloudEvent in the outbox, starting and completing the walk, a 409 on cancelling it, and apic test passing six scenarios"></picture></p>
+
+<p align="center"><picture><source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/apic-ui-poster.svg"><img src="docs/assets/apic-ui.svg" width="820" alt="apic ui: sending schedule-walk, its checks and captured session, then running walks.http as a flow with all twelve requests passing"></picture></p>
+
+Both recordings are real apic output against `task dev`'s worker; the
+caption in each title bar names the step.
+
 Captures (`clientId`, `dogId`, `walkId`) live in `api/.apic/session.json`,
 so `apic run schedule-walk` on its own runs `create-client` and
 `create-dog` first when they are missing (`# @ref`), and `apic session

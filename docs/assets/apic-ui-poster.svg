@@ -1,0 +1,230 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1005" height="632" viewBox="0 0 1005 632" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13">
+<rect width="1005" height="632" rx="10" fill="#11131a"/>
+<rect width="1005" height="38" rx="10" fill="#1b1e28"/>
+<rect y="28" width="1005" height="10" fill="#1b1e28"/>
+<circle cx="18" cy="19" r="5.5" fill="#ff5f57"/>
+<circle cx="35" cy="19" r="5.5" fill="#febc2e"/>
+<circle cx="52" cy="19" r="5.5" fill="#28c840"/>
+<text x="502.5" y="23.5" fill="#8b93a7" text-anchor="middle" font-size="12">apic ui</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8" y="60.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">requests (32)</text>
+<text x="322.9 330.7" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">↑8</text>
+<text x="338.5" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5" y="60.0" fill="#ff87d7" font-weight="bold" xml:space="preserve"> 1 preview </text>
+<text x="432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> 2 response </text>
+<text x="526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> 3 checks </text>
+<text x="604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> 4 session </text>
+<text x="690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> 5 history </text>
+<text x="791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">list-cancelled-wal…</text>
+<text x="948.2 956.0 963.8 971.6 979.5" y="60.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">top ↓</text>
+<text x="33.6" y="78.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="78.0" fill="#d787d7" font-weight="bold" xml:space="preserve">PATCH </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6" y="78.0" fill="#d6dae4" xml:space="preserve"> update-client </text>
+<text x="213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="78.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">PATCH: a fiel…</text>
+<text x="338.5" y="78.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9" y="78.0" fill="#00afff" font-weight="bold" xml:space="preserve">GET</text>
+<text x="377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="78.0" fill="#00afff" xml:space="preserve">{{baseUrl}}/walks?status=cancelled&amp;scheduled_from={{$datetime iso8601}}&amp;schedu</text>
+<text x="33.6" y="96.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="96.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4" y="96.0" fill="#d6dae4" xml:space="preserve"> invalid-client </text>
+<text x="221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="96.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Validation f…</text>
+<text x="338.5" y="96.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="96.0" fill="#d6dae4" xml:space="preserve">led_to={{$datetime iso8601 1 w}}                                                  </text>
+<text x="33.6" y="114.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="114.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1" y="114.0" fill="#d6dae4" xml:space="preserve"> client-not-found </text>
+<text x="236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="114.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">An id the …</text>
+<text x="338.5" y="114.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="114.0" fill="#d6dae4" xml:space="preserve">Filtering by status: the cancelled walk is there, nothing open is                 </text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5" y="132.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">dogs.http</text>
+<text x="299.4 307.2" y="132.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓1</text>
+<text x="322.9 330.7" y="132.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">·4</text>
+<text x="338.5" y="132.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6" y="132.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">file:</text>
+<text x="385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="132.0" fill="#d6dae4" xml:space="preserve"> walks.http:163                                                              </text>
+<text x="33.6" y="150.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="150.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2" y="150.0" fill="#d6dae4" xml:space="preserve"> create-dog </text>
+<text x="190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5" y="150.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Needs cl…</text>
+<text x="276.0 283.8 291.6" y="150.0" fill="#00d787" font-weight="bold" xml:space="preserve">201</text>
+<text x="307.2 315.0 322.9 330.7" y="150.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">11ms</text>
+<text x="338.5" y="150.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="33.6" y="168.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="168.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="168.0" fill="#d6dae4" xml:space="preserve"> get-dog </text>
+<text x="166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3" y="168.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Fetch the dog</text>
+<text x="338.5" y="168.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2" y="168.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">headers</text>
+<text x="33.6" y="186.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="186.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1" y="186.0" fill="#d6dae4" xml:space="preserve"> list-client-dogs </text>
+<text x="236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="186.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Filter by …</text>
+<text x="338.5" y="186.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6" y="186.0" fill="#af87ff" xml:space="preserve">Authorization:</text>
+<text x="471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="186.0" fill="#d6dae4" xml:space="preserve"> Bearer {{token}}                                                 </text>
+<text x="33.6" y="204.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="204.0" fill="#d787d7" font-weight="bold" xml:space="preserve">PATCH </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2" y="204.0" fill="#d6dae4" xml:space="preserve"> update-dog </text>
+<text x="190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="204.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Add a note, clea…</text>
+<text x="338.5" y="204.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8" y="204.0" fill="#af87ff" xml:space="preserve">Accept:</text>
+<text x="416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="204.0" fill="#d6dae4" xml:space="preserve"> application/json                                                        </text>
+<text x="33.6" y="222.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="222.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0 322.9 330.7" y="222.0" fill="#d6dae4" xml:space="preserve"> dog-for-unknown-client        </text>
+<text x="338.5" y="222.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2 104.0 111.8" y="240.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">fixtures.http</text>
+<text x="330.7" y="240.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">4</text>
+<text x="338.5" y="240.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8" y="240.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">variables</text>
+<text x="33.6" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="258.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4" y="258.0" fill="#d6dae4" xml:space="preserve"> reset-fixtures </text>
+<text x="221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Test harness…</text>
+<text x="338.5" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5" y="258.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓ baseUrl</text>
+<text x="432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3" y="258.0" fill="#d6dae4" xml:space="preserve">                http://localhost:8787  </text>
+<text x="737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2" y="258.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">http-client.env.json [local]</text>
+<text x="33.6" y="276.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="276.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4" y="276.0" fill="#d6dae4" xml:space="preserve"> seeded-clients </text>
+<text x="221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="276.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">The local to…</text>
+<text x="338.5" y="276.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6" y="276.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓ $datetime iso8601</text>
+<text x="510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5" y="276.0" fill="#d6dae4" xml:space="preserve">      2026-10-29T07:56:59Z  </text>
+<text x="729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0" y="276.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">built-in</text>
+<text x="33.6" y="294.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="294.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7" y="294.0" fill="#d6dae4" xml:space="preserve"> biscuit </text>
+<text x="166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="294.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Biscuit, the fixtur…</text>
+<text x="338.5" y="294.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9" y="294.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓ $datetime iso8601 1 w</text>
+<text x="541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5" y="294.0" fill="#d6dae4" xml:space="preserve">  2026-11-05T07:56:59Z  </text>
+<text x="729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0" y="294.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">built-in</text>
+<text x="33.6" y="312.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="312.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8" y="312.0" fill="#d6dae4" xml:space="preserve"> seeded-walks </text>
+<text x="205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="312.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Biscuit's walk…</text>
+<text x="338.5" y="312.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8" y="312.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓ token</text>
+<text x="416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3" y="312.0" fill="#d6dae4" xml:space="preserve">                  test:user_2walkeranna  </text>
+<text x="737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2" y="312.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">http-client.env.json [local]</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4 96.2" y="330.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">health.http</text>
+<text x="330.7" y="330.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">2</text>
+<text x="338.5" y="330.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7" y="330.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓ walkId</text>
+<text x="424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6" y="330.0" fill="#d6dae4" xml:space="preserve">                 ***  </text>
+<text x="596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5" y="330.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">captured this run</text>
+<text x="33.6" y="348.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="348.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9" y="348.0" fill="#d6dae4" xml:space="preserve"> health </text>
+<text x="158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="348.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">The unauthenticated …</text>
+<text x="338.5" y="348.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="33.6" y="366.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">●</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="366.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2" y="366.0" fill="#d6dae4" xml:space="preserve"> unauthenticated </text>
+<text x="229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2 315.0" y="366.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">No Authoriz…</text>
+<text x="338.5" y="366.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6" y="366.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">steps</text>
+<text x="18.0 25.8 33.6 41.5 49.3 57.1 64.9 72.7 80.5 88.4" y="384.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">walks.http</text>
+<text x="315.0 322.9 330.7" y="384.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓12</text>
+<text x="338.5" y="384.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="384.0" fill="#d6dae4" xml:space="preserve">  I list my cancelled walks for the next week                                     </text>
+<text x="33.6" y="402.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="402.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6" y="402.0" fill="#d6dae4" xml:space="preserve"> schedule-walk </text>
+<text x="213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6" y="402.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Books the …</text>
+<text x="315.0 322.9 330.7" y="402.0" fill="#00d787" font-weight="bold" xml:space="preserve">201</text>
+<text x="338.5" y="402.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="33.6" y="420.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="420.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5" y="420.0" fill="#d6dae4" xml:space="preserve"> get-walk </text>
+<text x="174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5" y="420.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Fetch the …</text>
+<text x="276.0 283.8 291.6" y="420.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="307.2 315.0 322.9 330.7" y="420.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">13ms</text>
+<text x="338.5" y="420.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2" y="420.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">asserts</text>
+<text x="33.6" y="438.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="438.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0" y="438.0" fill="#d6dae4" xml:space="preserve"> list-scheduled-walks   </text>
+<text x="283.8 291.6 299.4" y="438.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="315.0 322.9 330.7" y="438.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">7ms</text>
+<text x="338.5" y="438.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="438.0" fill="#d6dae4" xml:space="preserve">  status == 200                                                                   </text>
+<text x="33.6" y="456.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="456.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0" y="456.0" fill="#d6dae4" xml:space="preserve"> walk-scheduled-event   </text>
+<text x="283.8 291.6 299.4" y="456.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="315.0 322.9 330.7" y="456.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">7ms</text>
+<text x="338.5" y="456.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="456.0" fill="#d6dae4" xml:space="preserve">  body.$.walks[*].walk_id contains {{walkId}}                                     </text>
+<text x="33.6" y="474.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="474.0" fill="#ff5f5f" font-weight="bold" xml:space="preserve">DELETE</text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0" y="474.0" fill="#d6dae4" xml:space="preserve"> delete-booked-dog      </text>
+<text x="283.8 291.6 299.4" y="474.0" fill="#ff5f5f" font-weight="bold" xml:space="preserve">409</text>
+<text x="315.0 322.9 330.7" y="474.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">9ms</text>
+<text x="338.5" y="474.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="474.0" fill="#d6dae4" xml:space="preserve">  body.$.walks[?(@.status != &quot;cancelled&quot;)].length == 0                            </text>
+<text x="33.6" y="492.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="492.0" fill="#d787d7" font-weight="bold" xml:space="preserve">PATCH </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2" y="492.0" fill="#d6dae4" xml:space="preserve"> reschedule-walk </text>
+<text x="229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6" y="492.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Reschedu…</text>
+<text x="315.0 322.9 330.7" y="492.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="338.5" y="492.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="33.6" y="510.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="510.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2" y="510.0" fill="#d6dae4" xml:space="preserve"> start-walk </text>
+<text x="190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5" y="510.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Start th…</text>
+<text x="276.0 283.8 291.6" y="510.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="307.2 315.0 322.9 330.7" y="510.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">10ms</text>
+<text x="338.5" y="510.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="510.0" fill="#00d787" xml:space="preserve">╭─────────────────────────────────────────────────────────────────────────────────</text>
+<text x="33.6" y="528.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="528.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6" y="528.0" fill="#d6dae4" xml:space="preserve"> complete-walk </text>
+<text x="213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6" y="528.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">Complete i…</text>
+<text x="315.0 322.9 330.7" y="528.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="338.5" y="528.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="528.0" fill="#d6dae4" xml:space="preserve">─────────────────────────────────────╮                                            </text>
+<text x="33.6" y="546.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="546.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0" y="546.0" fill="#d6dae4" xml:space="preserve"> cancel-closed-walk     </text>
+<text x="283.8 291.6 299.4" y="546.0" fill="#ff5f5f" font-weight="bold" xml:space="preserve">409</text>
+<text x="315.0 322.9 330.7" y="546.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">9ms</text>
+<text x="338.5" y="546.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3" y="546.0" fill="#00d787" xml:space="preserve">│</text>
+<text x="361.9 369.8 377.6 385.4 393.2" y="546.0" fill="#00d787" font-weight="bold" xml:space="preserve">ready</text>
+<text x="408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="546.0" fill="#00afff" xml:space="preserve">{{baseUrl}}/walks?status=cancelled&amp;scheduled_from={{$datetime iso8601}}&amp;sc</text>
+<text x="33.6" y="564.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="564.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6 299.4 307.2" y="564.0" fill="#d6dae4" xml:space="preserve"> schedule-another-walk      </text>
+<text x="315.0 322.9 330.7" y="564.0" fill="#00d787" font-weight="bold" xml:space="preserve">201</text>
+<text x="338.5" y="564.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7" y="564.0" fill="#d6dae4" xml:space="preserve">heduled_to={{$datetime iso8601 1 w}} </text>
+<text x="635.5" y="564.0" fill="#00d787" xml:space="preserve">│</text>
+<text x="33.6" y="582.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="582.0" fill="#d787d7" font-weight="bold" xml:space="preserve">POST  </text>
+<text x="96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0" y="582.0" fill="#d6dae4" xml:space="preserve"> cancel-walk </text>
+<text x="197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5 260.3 268.1 276.0 283.8 291.6" y="582.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">reason is on…</text>
+<text x="315.0 322.9 330.7" y="582.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="338.5" y="582.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="582.0" fill="#00d787" xml:space="preserve">╰─────────────────────────────────────────────────────────────────────────────────</text>
+<text x="18.0 25.8" y="600.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">▸ </text>
+<text x="33.6" y="600.0" fill="#00d787" font-weight="bold" xml:space="preserve">✓</text>
+<text x="49.3 57.1 64.9 72.7 80.5 88.4" y="600.0" fill="#d787d7" font-weight="bold" xml:space="preserve">GET   </text>
+<text x="104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4 221.2 229.1 236.9 244.7 252.5" y="600.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">list-cancelled-walks</text>
+<text x="276.0 283.8 291.6" y="600.0" fill="#00d787" font-weight="bold" xml:space="preserve">200</text>
+<text x="307.2 315.0 322.9 330.7" y="600.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">11ms</text>
+<text x="338.5" y="600.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">│</text>
+<text x="346.3 354.1 361.9 369.8 377.6 385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9 455.7 463.6 471.4 479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6 596.4 604.3 612.1 619.9 627.7 635.5 643.3 651.2 659.0 666.8 674.6 682.4 690.2 698.1 705.9 713.7 721.5 729.3 737.1 745.0 752.8 760.6 768.4 776.2 784.0 791.9 799.7 807.5 815.3 823.1 830.9 838.8 846.6 854.4 862.2 870.0 877.8 885.7 893.5 901.3 909.1 916.9 924.7 932.6 940.4 948.2 956.0 963.8 971.6 979.5" y="600.0" fill="#d6dae4" xml:space="preserve">─────────────────────────────────────╯                                            </text>
+<text x="18.0 25.8 33.6 41.5" y="618.0" fill="#ff87d7" font-weight="bold" xml:space="preserve">apic</text>
+<text x="49.3 57.1 64.9" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> · </text>
+<text x="72.7 80.5 88.4 96.2 104.0 111.8 119.6 127.4 135.3 143.1 150.9 158.7 166.5 174.3 182.2 190.0 197.8 205.6 213.4" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">dog-walking-api/api</text>
+<text x="221.2 229.1 236.9" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> · </text>
+<text x="244.7 252.5 260.3 268.1" y="618.0" fill="#d6dae4" xml:space="preserve">env=</text>
+<text x="276.0 283.8 291.6 299.4 307.2" y="618.0" fill="#d6dae4" font-weight="bold" xml:space="preserve">local</text>
+<text x="315.0 322.9 330.7" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> · </text>
+<text x="338.5 346.3 354.1 361.9 369.8 377.6" y="618.0" fill="#d6dae4" xml:space="preserve">last: </text>
+<text x="385.4 393.2 401.0 408.8 416.7 424.5 432.3 440.1 447.9" y="618.0" fill="#00d787" font-weight="bold" xml:space="preserve">12 passed</text>
+<text x="455.7 463.6 471.4" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve"> · </text>
+<text x="479.2 487.0 494.8 502.6 510.5 518.3 526.1 533.9 541.7 549.5 557.4 565.2 573.0 580.8 588.6" y="618.0" fill="#d6dae4" opacity="0.55" xml:space="preserve">? help · q quit</text>
+</svg>
