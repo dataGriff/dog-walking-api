@@ -1,5 +1,5 @@
 import { Hono, type Context } from "hono";
-import { and, asc, eq, gte, inArray, isNull, lt } from "drizzle-orm";
+import { and, asc, eq, gte, inArray, isNull, lt, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { AppEnv } from "../env";
 import { database, type Database } from "../db";
@@ -7,7 +7,6 @@ import { dogs, walks } from "../db/schema";
 import { nowIso, present, problem } from "../problem";
 import { parseBody } from "../validate";
 import { CHANNELS, TYPES, envelope } from "../events/cloudevents";
-import { outbox } from "../db/schema";
 import { outboxRow, relayOutbox } from "../events/outbox";
 
 const STATUSES = ["scheduled", "in_progress", "completed", "cancelled"] as const;
@@ -55,6 +54,12 @@ async function ownedDogs(db: Database, walkerId: string, ids: string[]): Promise
   }
   return found === unique.length ? unique : null;
 }
+
+/** True when every id in the JSON array bound as ?5 is a dog of the walker
+ * bound as ?2: one parameter however many dogs, checked in the statement
+ * that writes the walk. */
+const OWNS_ALL_DOGS =
+  "(SELECT count(*) FROM dogs WHERE dogs.walker_id = ?2 AND dogs.dog_id IN (SELECT value FROM json_each(?5))) = json_array_length(?5)";
 
 async function loadWalk(db: Database, walkerId: string, walkId: string) {
   return db
@@ -212,7 +217,27 @@ export const walkRoutes = new Hono<AppEnv>()
       },
       now,
     );
-    await db.batch([db.insert(walks).values(row), db.insert(outbox).values(outboxRow(CHANNELS.scheduled, event))]);
+    // The ownership check above is advisory; this insert re-checks it in the
+    // same statement, so a dog removed meanwhile cannot end up on the walk.
+    // The outbox row is inserted only if the walk was.
+    const ob = outboxRow(CHANNELS.scheduled, event);
+    const d1 = c.env.DB;
+    const [inserted] = await d1.batch([
+      d1
+        .prepare(
+          "INSERT INTO walks (walk_id, walker_id, scheduled_at, duration_minutes, dog_ids, status, notes, created_at) " +
+            "SELECT ?1, ?2, ?3, ?4, ?5, 'scheduled', ?6, ?7 WHERE " +
+            `${OWNS_ALL_DOGS}`,
+        )
+        .bind(row.walk_id, walkerId, row.scheduled_at, row.duration_minutes, row.dog_ids, row.notes, now),
+      d1
+        .prepare(
+          "INSERT INTO outbox (event_id, channel, subject, envelope, created_at) " +
+            "SELECT ?1, ?2, ?3, ?4, ?5 FROM walks WHERE walk_id = ?3",
+        )
+        .bind(ob.event_id, ob.channel, ob.subject, ob.envelope, ob.created_at),
+    ]);
+    if (!inserted?.meta.changes) return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
     relayLater(c, db);
     return c.json(toApi(row), 201);
   })
@@ -240,15 +265,27 @@ export const walkRoutes = new Hono<AppEnv>()
       if (!owned) return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
       changes.dog_ids = JSON.stringify(owned);
     }
-    // Guarded on the status, so a walk started or closed since it was read is not amended.
+    // Guarded on the status, so a walk started or closed since it was read is
+    // not amended, and on the new dogs still being the walker's, so a dog
+    // removed since the check above cannot be booked.
     const updated = await db
       .update(walks)
       .set(Object.keys(changes).length > 0 ? changes : { walk_id: row.walk_id })
-      .where(and(eq(walks.walk_id, row.walk_id), eq(walks.status, "scheduled")))
+      .where(
+        and(
+          eq(walks.walk_id, row.walk_id),
+          eq(walks.status, "scheduled"),
+          changes.dog_ids === undefined
+            ? undefined
+            : sql`(SELECT count(*) FROM dogs WHERE dogs.walker_id = ${walkerId}
+                  AND dogs.dog_id IN (SELECT value FROM json_each(${changes.dog_ids}))) = json_array_length(${changes.dog_ids})`,
+        ),
+      )
       .returning()
       .get();
     if (!updated) {
       const now = await loadWalk(db, walkerId, row.walk_id);
+      if (now?.status === "scheduled") return problem(c, 400, "invalid_walk", "every dog_id must be one of your dogs");
       return problem(c, 409, "walk_not_scheduled", `A ${now?.status ?? "closed"} walk cannot be amended.`);
     }
     return c.json(toApi(updated));

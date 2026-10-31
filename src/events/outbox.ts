@@ -6,8 +6,9 @@ import type { Envelope } from "./cloudevents";
 const PAGE = 50;
 /** How long a relay owns the rows it claimed before another may retry them. */
 const LEASE_MS = 60_000;
-/** After this many attempts a row is parked: left unpublished and logged. */
-export const MAX_ATTEMPTS = 10;
+/** From this many attempts on, a row still unpublished is logged as stuck.
+ * It is never given up on: an outage delays events, it does not lose them. */
+export const STUCK_AFTER = 10;
 
 /** The outbox insert to batch alongside the aggregate write. */
 export function outboxRow(channel: string, env: Envelope<{ walk_id: string }>) {
@@ -39,8 +40,10 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
   }
   // Each page is claimed under a lease before it is sent, so concurrent
   // relays (every write request starts one, plus the cron) publish disjoint
-  // rows. A row the queue keeps refusing is retried after its lease lapses
-  // and parked after MAX_ATTEMPTS, so it can never block the rows behind it.
+  // rows. A row the queue refuses is retried after its lease lapses, however
+  // long that takes. Only a walk's earliest unpublished event is claimable,
+  // so its later events wait behind it and a walk's events publish in order;
+  // other walks are not held up.
   let sent = 0;
   for (let page = 0; page < 20; page++) {
     const now = new Date().toISOString();
@@ -51,8 +54,9 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
       .where(
         and(
           isNull(outbox.published_at),
-          lt(outbox.attempts, MAX_ATTEMPTS),
           or(isNull(outbox.claimed_until), lt(outbox.claimed_until, now)),
+          sql`NOT EXISTS (SELECT 1 FROM outbox AS earlier WHERE earlier.subject = ${outbox.subject}
+                AND earlier.published_at IS NULL AND earlier.created_at < ${outbox.created_at})`,
         ),
       )
       .orderBy(asc(outbox.created_at))
@@ -79,9 +83,9 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
             await queue.send(JSON.parse(row.envelope) as unknown, { contentType: "json" });
             published.push(row.event_id);
           } catch (err) {
-            const parked = row.attempts >= MAX_ATTEMPTS;
+            const stuck = row.attempts >= STUCK_AFTER ? " - stuck, still retrying" : "";
             console.error(
-              `outbox ${row.event_id} not published (attempt ${row.attempts}${parked ? ", parked" : ""}):`,
+              `outbox ${row.event_id} not published (attempt ${row.attempts}${stuck}):`,
               err instanceof Error ? err.message : err,
             );
           }
@@ -96,7 +100,9 @@ export async function relayOutbox(db: Database, queue: Queue, testMode: boolean)
         .run();
     }
     sent += published.length;
-    if (claimed.length < PAGE) break;
+    // Keep going even after a short page: publishing a walk's event may
+    // have made its next event claimable. Failed rows stay leased, so the
+    // loop ends once nothing is claimable.
   }
   return sent;
 }
